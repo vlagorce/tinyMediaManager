@@ -70,7 +70,7 @@ import org.tinymediamanager.ui.TmmWindowSaver;
  * @author Manuel Laggner / Myron Boyle
  */
 public class Utils {
-  private static final Logger                       LOGGER            = LoggerFactory.getLogger(Utils.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
 
   /**
    * Map of all known English/UserLocalized String to base locale, key is LOWERCASE
@@ -389,7 +389,7 @@ public class Utils {
             String ga = "v=1"
                 + "&tid=UA-35564534-5"
                 + "&cid=" + uuid 
-                + "&an=tinyMediaManager" 
+                + "&an=tinyMediaManager-legacy" 
                 + "&av=" + ReleaseInfo.getBuild() // svn revision number (or nightly/prerel)
                 + "&t=event"
                 + "&ec=" + event

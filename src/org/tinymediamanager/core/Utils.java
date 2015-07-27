@@ -211,7 +211,7 @@ public class Utils {
       if (prfx.matches(".*['`´]$")) { // ends with hand-picked delim, so no space might be possible
         delim = "";
       }
-      title = title.replaceAll("(?i)^" + prfx + delim + "(.*)", "$1, " + prfx);
+      title = title.replaceAll("(?i)^" + Pattern.quote(prfx) + delim + "(.*)", "$1, " + prfx);
     }
     return title.trim();
   }
@@ -389,7 +389,7 @@ public class Utils {
             String ga = "v=1"
                 + "&tid=UA-35564534-5"
                 + "&cid=" + uuid 
-                + "&an=tinyMediaManager-legacy" 
+                + "&an=tinyMediaManager" 
                 + "&av=" + ReleaseInfo.getBuild() // svn revision number (or nightly/prerel)
                 + "&t=event"
                 + "&ec=" + event

@@ -389,7 +389,7 @@ public class Utils {
             String ga = "v=1"
                 + "&tid=UA-35564534-5"
                 + "&cid=" + uuid 
-                + "&an=tinyMediaManager" 
+                + "&an=tinyMediaManager-legacy" 
                 + "&av=" + ReleaseInfo.getBuild() // svn revision number (or nightly/prerel)
                 + "&t=event"
                 + "&ec=" + event

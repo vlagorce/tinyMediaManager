@@ -48,14 +48,15 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
 import java.util.Map.Entry;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaEntityImageFetcherTask;
@@ -71,8 +72,9 @@ import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.connector.TvShowEpisodeToXbmcNfoConnector;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
-import org.tinymediamanager.scraper.entities.MediaCastMember;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
+import org.tinymediamanager.scraper.entities.MediaCastMember;
+import org.tinymediamanager.scraper.util.StrgUtils;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -136,6 +138,58 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   public TvShowEpisode() {
     // register for dirty flag listener
     super();
+  }
+
+  /**
+   * Overwrites all null/empty elements with "other" value (but might be also empty)<br>
+   * For lists, check with 'contains' and add.<br>
+   * Do NOT merge path, dateAdded, scraped, mediaFiles and other crucial properties!
+   * 
+   * @param other
+   */
+
+  public void merge(TvShowEpisode other) {
+    if (other == null) {
+      return;
+    }
+    super.merge(other);
+
+    this.episode = this.episode < 0 ? other.getEpisode() : this.episode;
+    this.season = this.season < 0 ? other.getSeason() : this.season;
+    this.dvdSeason = this.dvdSeason < 0 ? other.getDvdSeason() : this.dvdSeason;
+    this.dvdEpisode = this.dvdEpisode < 0 ? other.getDvdEpisode() : this.dvdEpisode;
+    this.displaySeason = this.displaySeason < 0 ? other.getDisplaySeason() : this.displaySeason;
+    this.displayEpisode = this.displayEpisode < 0 ? other.getDisplayEpisode() : this.displayEpisode;
+
+    this.firstAired = this.firstAired == null ? other.getFirstAired() : this.firstAired;
+    this.mediaSource = this.mediaSource == MediaSource.UNKNOWN ? other.getMediaSource() : MediaSource.UNKNOWN;
+
+    this.director = StringUtils.isEmpty(this.director) ? other.getDirector() : this.director;
+    this.writer = StringUtils.isEmpty(this.writer) ? other.getWriter() : this.writer;
+
+    for (String key : other.getTags()) {
+      if (!this.tags.contains(key)) {
+        this.tags.add(key);
+      }
+    }
+    for (TvShowActor actor : other.getActors()) {
+      if (!this.actors.contains(actor)) {
+        this.actors.add(actor);
+      }
+    }
+  }
+
+  /**
+   * <p>
+   * Uses <code>ReflectionToStringBuilder</code> to generate a <code>toString</code> for the specified object.
+   * </p>
+   * 
+   * @return the String result
+   * @see ReflectionToStringBuilder#toString(Object)
+   */
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
   @Override
@@ -288,24 +342,12 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    * 
    * @param aired
    *          the new first aired
-   * @throws ParseException
-   *           if string cannot be parsed!
    */
-  public void setFirstAired(String aired) throws ParseException {
-    Pattern date = Pattern.compile("([0-9]{2})[_\\.-]([0-9]{2})[_\\.-]([0-9]{4})");
-    Matcher m = date.matcher(aired);
-    if (m.find()) {
-      this.firstAired = new SimpleDateFormat("dd-MM-yyyy").parse(m.group(1) + "-" + m.group(2) + "-" + m.group(3));
+  public void setFirstAired(String aired) {
+    try {
+      this.firstAired = StrgUtils.parseDate(aired);
     }
-    else {
-      date = Pattern.compile("([0-9]{4})[_\\.-]([0-9]{2})[_\\.-]([0-9]{2})");
-      m = date.matcher(aired);
-      if (m.find()) {
-        this.firstAired = new SimpleDateFormat("yyyy-MM-dd").parse(m.group(1) + "-" + m.group(2) + "-" + m.group(3));
-      }
-      else {
-        throw new ParseException("could not parse date from: " + aired, 0);
-      }
+    catch (ParseException e) {
     }
   }
 
@@ -526,12 +568,10 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     setDirector(director);
     setWriter(writer);
 
-    for (MediaArtwork ma : metadata.getFanart()) {
-      if (ma.getType() == MediaArtworkType.THUMB) {
-        setArtworkUrl(ma.getDefaultUrl(), MediaFileType.THUMB);
-        writeNewThumb = true;
-        break;
-      }
+    for (MediaArtwork ma : metadata.getMediaArt(MediaArtworkType.THUMB)) {
+      setArtworkUrl(ma.getDefaultUrl(), MediaFileType.THUMB);
+      writeNewThumb = true;
+      break;
     }
 
     // update DB
@@ -554,7 +594,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     // worst case: multi episode in multiple files
     // e.g. warehouse13.s01e01e02.Part1.avi/warehouse13.s01e01e02.Part2.avi
     for (MediaFile mf : getMediaFiles(MediaFileType.VIDEO)) {
-      List<TvShowEpisode> eps = new ArrayList<TvShowEpisode>(TvShowList.getInstance().getTvEpisodesByFile(tvShow, mf.getFile()));
+      List<TvShowEpisode> eps = new ArrayList<>(TvShowList.getInstance().getTvEpisodesByFile(tvShow, mf.getFile()));
       for (TvShowEpisode ep : eps) {
         if (!episodesInNfo.contains(ep)) {
           episodesInNfo.add(ep);
@@ -820,6 +860,15 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     }
 
     return "";
+  }
+
+  /**
+   * get all video files for that episode
+   * 
+   * @return a list of all video files
+   */
+  public List<MediaFile> getVideoFiles() {
+    return getMediaFiles(MediaFileType.VIDEO);
   }
 
   /**

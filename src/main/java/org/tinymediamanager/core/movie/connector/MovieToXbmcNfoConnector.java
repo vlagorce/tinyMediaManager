@@ -27,7 +27,6 @@ import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.Format;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -300,7 +299,9 @@ public class MovieToXbmcNfoConnector {
     }
 
     xbmc.id = movie.getImdbId();
-    xbmc.tmdbId = movie.getTmdbId();
+    if (movie.getTmdbId() != 0) {
+      xbmc.tmdbId = movie.getTmdbId();
+    }
 
     xbmc.ids.putAll(movie.getIds());
 
@@ -538,11 +539,7 @@ public class MovieToXbmcNfoConnector {
       else {
         movie.setTop250(0);
       }
-      try {
-        movie.setReleaseDate(xbmc.premiered);
-      }
-      catch (ParseException e) {
-      }
+      movie.setReleaseDate(xbmc.premiered);
       movie.setPlot(xbmc.plot);
       movie.setTagline(xbmc.tagline);
       try {
@@ -586,7 +583,7 @@ public class MovieToXbmcNfoConnector {
       if (StringUtils.isBlank(movie.getImdbId())) {
         movie.setImdbId(xbmc.id);
       }
-      if (movie.getTmdbId() == 0) {
+      if (movie.getTmdbId() == 0 && xbmc.tmdbId != 0) {
         movie.setTmdbId(xbmc.tmdbId);
       }
 

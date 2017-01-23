@@ -59,9 +59,9 @@ import javax.swing.tree.TreePath;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.AutoBinding;
+import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
-import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
@@ -73,10 +73,11 @@ import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TreePopupListener;
 import org.tinymediamanager.ui.TreeUI;
 import org.tinymediamanager.ui.UTF8Control;
+import org.tinymediamanager.ui.actions.RequestFocusAction;
 import org.tinymediamanager.ui.components.EnhancedTextField;
 import org.tinymediamanager.ui.components.JSplitButton;
-import org.tinymediamanager.ui.components.ZebraJTree;
 import org.tinymediamanager.ui.components.JSplitButton.SplitButtonActionListener;
+import org.tinymediamanager.ui.components.ZebraJTree;
 import org.tinymediamanager.ui.tvshows.TvShowExtendedMatcher.SearchOptions;
 import org.tinymediamanager.ui.tvshows.actions.DebugDumpShow;
 import org.tinymediamanager.ui.tvshows.actions.TvShowBulkEditAction;
@@ -85,6 +86,7 @@ import org.tinymediamanager.ui.tvshows.actions.TvShowChangeToAiredOrderAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowChangeToDvdOrderAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowClearImageCacheAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowDeleteAction;
+import org.tinymediamanager.ui.tvshows.actions.TvShowDownloadMissingArtworkAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowEditAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowExportAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowMediaInformationAction;
@@ -166,6 +168,7 @@ public class TvShowPanel extends JPanel {
   private final Action                actionChangeToDvdOrder           = new TvShowChangeToDvdOrderAction();
   private final Action                actionChangeToAiredOrder         = new TvShowChangeToAiredOrderAction();
   private final Action                actionDownloadSubtitles          = new TvShowSubtitleDownloadAction();
+  private final Action                actionDownloadMissingArtwork     = new TvShowDownloadMissingArtworkAction();
   private final Action                actionSearchAndDownloadSubtitles = new TvShowSubtitleSearchAction();
   private final Action                debugDumpShow                    = new DebugDumpShow();
 
@@ -234,6 +237,9 @@ public class TvShowPanel extends JPanel {
         filteredModel.filter(tree);
       }
     });
+    // register global short cut for the search field
+    getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK), "search");
+    getActionMap().put("search", new RequestFocusAction(textField));
 
     final JToggleButton btnFilter = new JToggleButton(IconManager.FILTER);
     btnFilter.setToolTipText(BUNDLE.getString("movieextendedsearch.options")); //$NON-NLS-1$
@@ -638,6 +644,7 @@ public class TvShowPanel extends JPanel {
     popupMenu.add(actionExport);
     popupMenu.add(actionClearImageCache);
     popupMenu.addSeparator();
+    popupMenu.add(actionDownloadMissingArtwork);
     popupMenu.add(actionDownloadSubtitles);
     popupMenu.add(actionSearchAndDownloadSubtitles);
     popupMenu.addSeparator();

@@ -19,6 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,6 +28,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -35,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
@@ -51,6 +55,8 @@ public class MovieSetArtworkHelper {
   private static final List<MediaFileType> SUPPORTED_ARTWORK_TYPES     = Arrays.asList(MediaFileType.POSTER, MediaFileType.FANART,
       MediaFileType.BANNER, MediaFileType.LOGO, MediaFileType.CLEARLOGO, MediaFileType.CLEARART);
   private static final String[]            SUPPORTED_ARTWORK_FILETYPES = { "jpg", "png", "tbn" };
+  private static Pattern                   artworkPattern              = Pattern
+      .compile("(?i)movieset-(poster|fanart|banner|disc|discart|logo|clearlogo|clearart|thumb)\\..{2,4}");
 
   private static final Logger              LOGGER                      = LoggerFactory.getLogger(MovieSetArtworkHelper.class);
 
@@ -135,7 +141,7 @@ public class MovieSetArtworkHelper {
    */
   public static void setArtwork(MovieSet movieSet, List<MediaArtwork> artwork) {
     // sort artwork once again (langu/rating)
-    Collections.sort(artwork, new MediaArtwork.MediaArtworkComparator(MovieModuleManager.MOVIE_SETTINGS.getScraperLanguage().name()));
+    Collections.sort(artwork, new MediaArtwork.MediaArtworkComparator(MovieModuleManager.MOVIE_SETTINGS.getScraperLanguage().getLanguage()));
 
     // poster
     setBestPoster(movieSet, artwork);
@@ -160,7 +166,7 @@ public class MovieSetArtworkHelper {
    */
   private static void setBestPoster(MovieSet movieSet, List<MediaArtwork> artwork) {
     int preferredSizeOrder = MovieModuleManager.MOVIE_SETTINGS.getImagePosterSize().getOrder();
-    String preferredLanguage = MovieModuleManager.MOVIE_SETTINGS.getScraperLanguage().name();
+    String preferredLanguage = MovieModuleManager.MOVIE_SETTINGS.getScraperLanguage().getLanguage();
 
     MediaArtwork foundPoster = null;
 
@@ -220,7 +226,7 @@ public class MovieSetArtworkHelper {
    */
   private static void setBestFanart(MovieSet movieSet, List<MediaArtwork> artwork) {
     int preferredSizeOrder = MovieModuleManager.MOVIE_SETTINGS.getImageFanartSize().getOrder();
-    String preferredLanguage = MovieModuleManager.MOVIE_SETTINGS.getScraperLanguage().name();
+    String preferredLanguage = MovieModuleManager.MOVIE_SETTINGS.getScraperLanguage().getLanguage();
 
     MediaArtwork foundfanart = null;
 
@@ -338,6 +344,27 @@ public class MovieSetArtworkHelper {
     }
   }
 
+  /**
+   * strip out the movie set artwork from a movie folder
+   * 
+   * @param movie
+   *          the movie to strip out the movie set artwork
+   */
+  public static void cleanMovieSetArtworkInMovieFolder(Movie movie) {
+    try {
+      DirectoryStream<Path> stream = Files.newDirectoryStream(movie.getPathNIO());
+      for (Path entry : stream) {
+        Matcher matcher = artworkPattern.matcher(entry.getFileName().toString());
+        if (matcher.find()) {
+          Utils.deleteFileSafely(entry);
+        }
+      }
+    }
+    catch (Exception e) {
+      LOGGER.error("remove movie set artwork: " + e.getMessage());
+    }
+  }
+
   private static class MovieSetImageFetcherTask implements Runnable {
     private MovieSet        movieSet;
     private String          urlToArtwork;
@@ -407,13 +434,15 @@ public class MovieSetArtworkHelper {
         byte[] bytes = IOUtils.toByteArray(is);
         is.close();
 
+        String extension = FilenameUtils.getExtension(urlToArtwork);
+
         // and then write it to the desired files
         movieSet.removeAllMediaFiles(type);
         if (writeToArtworkFolder) {
-          writeImageToArtworkFolder(bytes);
+          writeImageToArtworkFolder(bytes, extension);
         }
         if (writeToMovieFolder) {
-          writeImageToMovieFolders(bytes);
+          writeImageToMovieFolders(bytes, extension);
         }
         if (!writeToArtworkFolder && !writeToMovieFolder) {
           // at least cache it
@@ -435,7 +464,7 @@ public class MovieSetArtworkHelper {
       }
     }
 
-    private void writeImageToArtworkFolder(byte[] bytes) {
+    private void writeImageToArtworkFolder(byte[] bytes, String extension) {
       Path artworkFolder = Paths.get(this.artworkFolder);
 
       // check if folder exists
@@ -450,23 +479,35 @@ public class MovieSetArtworkHelper {
 
       // write files
       try {
-        String providedFiletype = FilenameUtils.getExtension(urlToArtwork);
-        writeImage(bytes, artworkFolder
-            .resolve(
-                MovieRenamer.replaceInvalidCharacters(movieSet.getTitle()) + "-" + type.name().toLowerCase(Locale.ROOT) + "." + providedFiletype));
+        String filename = MovieRenamer.replaceInvalidCharacters(movieSet.getTitle()) + "-";
+        // we are lucky and have chosen our enums wisely - except the discart :(
+        if (type == MediaFileType.DISCART) {
+          filename += "disc" + extension;
+        }
+        else {
+          filename += type.name().toLowerCase(Locale.ROOT) + "." + extension;
+        }
+        writeImage(bytes, artworkFolder.resolve(filename));
       }
       catch (Exception e) {
         LOGGER.warn("could not write file", e);
       }
     }
 
-    private void writeImageToMovieFolders(byte[] bytes) {
+    private void writeImageToMovieFolders(byte[] bytes, String extension) {
       // check for empty strings or movies
       if (movies.isEmpty()) {
         return;
       }
 
-      String filename = "movieset-" + type.name().toLowerCase(Locale.ROOT) + ".jpg";
+      String filename = "movieset-";
+      // we are lucky and have chosen our enums wisely - except the discart :(
+      if (type == MediaFileType.DISCART) {
+        filename += "disc." + extension;
+      }
+      else {
+        filename += type.name().toLowerCase(Locale.ROOT) + "." + extension;
+      }
 
       // write image for all movies
       for (Movie movie : movies) {

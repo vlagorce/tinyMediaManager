@@ -13,7 +13,10 @@ public class MovieMediaSourceTest {
     Assert.assertEquals(MediaSource.BLURAY, MediaSource.parseMediaSource("Night.on.Earth.1991.German.Subbed.BDRip.x264"));
     Assert.assertEquals(MediaSource.BLURAY, MediaSource.parseMediaSource("Night.on.Earth.1991.German.Subbed.BRRip.x264"));
     Assert.assertEquals(MediaSource.BLURAY, MediaSource.parseMediaSource("/media/movies/Night.on.Earth.1991.German.Subbed.BDRip.x264"));
-    Assert.assertEquals(MediaSource.BLURAY, MediaSource.parseMediaSource("Night.on.Earth.1991.German.Subbed.HDRIP.x264"));
+
+    // hdrip
+    Assert.assertEquals(MediaSource.HDRIP, MediaSource.parseMediaSource("Night.on.Earth.1991.German.Subbed.HDRIP.x264"));
+    Assert.assertEquals(MediaSource.HDRIP, MediaSource.parseMediaSource("Arsenal.2017.HDRip.XviD.AC3.avi"));
 
     // dvd/dvdrip
     Assert.assertEquals(MediaSource.DVD, MediaSource.parseMediaSource("DrugStore.Cowboy.1989.German.AC3.DVDRiP.x264"));
@@ -34,12 +37,17 @@ public class MovieMediaSourceTest {
     // web-dl
     Assert.assertEquals(MediaSource.WEB_DL, MediaSource.parseMediaSource("Night.on.Earth.1991.German.Subbed.web-dl"));
     Assert.assertEquals(MediaSource.WEB_DL, MediaSource.parseMediaSource("Night.on.Earth.1991.German.Subbed.webdl"));
+    Assert.assertEquals(MediaSource.WEB_DL, MediaSource.parseMediaSource("/media/movies/Tsunami.webdl.avi"));
 
     // internet stream
     Assert.assertEquals(MediaSource.STREAM, MediaSource.parseMediaSource("Night.on.Earth.1991.German.Subbed.strm"));
     Assert.assertEquals(MediaSource.TV, MediaSource.parseMediaSource("Night.on.Earth.1991.German.Subbed.TVRIP.strm"));
 
     Assert.assertEquals(MediaSource.STREAM, MediaSource.parseMediaSource("some/path/Night.on.Earth.1991.German.Subbed.strm"));
+
+    // DVDSCR
+    Assert.assertEquals(MediaSource.DVDSCR, MediaSource.parseMediaSource("/media/jets/movies/Planes.DVDSCR.xxx.avi"));
+    Assert.assertEquals(MediaSource.DVDSCR, MediaSource.parseMediaSource("/media/jets/movies/Planes.dvdscr.avi"));
   }
 
 }

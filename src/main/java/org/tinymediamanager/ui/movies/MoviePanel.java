@@ -69,6 +69,7 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.IconRenderer;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.UTF8Control;
+import org.tinymediamanager.ui.actions.RequestFocusAction;
 import org.tinymediamanager.ui.components.EnhancedTextField;
 import org.tinymediamanager.ui.components.JSplitButton;
 import org.tinymediamanager.ui.components.JSplitButton.SplitButtonActionListener;
@@ -79,6 +80,7 @@ import org.tinymediamanager.ui.movies.actions.MovieBatchEditAction;
 import org.tinymediamanager.ui.movies.actions.MovieClearImageCacheAction;
 import org.tinymediamanager.ui.movies.actions.MovieCreateOfflineAction;
 import org.tinymediamanager.ui.movies.actions.MovieDeleteAction;
+import org.tinymediamanager.ui.movies.actions.MovieDownloadMissingArtworkAction;
 import org.tinymediamanager.ui.movies.actions.MovieEditAction;
 import org.tinymediamanager.ui.movies.actions.MovieExportAction;
 import org.tinymediamanager.ui.movies.actions.MovieFindMissingAction;
@@ -145,6 +147,7 @@ public class MoviePanel extends JPanel {
   private final Action                  actionTrailerDownload        = new MovieTrailerDownloadAction();
   private final Action                  actionSearchSubtitle         = new MovieSubtitleSearchAction();
   private final Action                  actionDownloadSubtitle       = new MovieSubtitleDownloadAction();
+  private final Action                  actionDownloadMissingArtwork = new MovieDownloadMissingArtworkAction();
   private final Action                  actionRename                 = new MovieRenameAction(false);
   private final Action                  actionRename2                = new MovieRenameAction(true);
   private final Action                  actionRemove2                = new MovieRemoveAction();
@@ -293,6 +296,9 @@ public class MoviePanel extends JPanel {
     textField = EnhancedTextField.createSearchTextField();
     panelMovieList.add(textField, "3, 1, right, bottom");
     textField.setColumns(13);
+    // register global short cut for the search field
+    getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK), "search");
+    getActionMap().put("search", new RequestFocusAction(textField));
 
     // table = new JTable();
     // build JTable
@@ -507,6 +513,7 @@ public class MoviePanel extends JPanel {
 
     menuItem = menu.add(actionRewriteNfo);
     menuItem.setMnemonic(KeyEvent.VK_N);
+    menuItem = menu.add(actionDownloadMissingArtwork);
     menuItem = menu.add(actionTrailerDownload);
     menuItem = menu.add(actionSearchSubtitle);
     menuItem = menu.add(actionDownloadSubtitle);
@@ -551,6 +558,7 @@ public class MoviePanel extends JPanel {
     popupMenu.add(actionRenamerPreview);
     popupMenu.add(actionMediaInformation2);
     popupMenu.add(actionExport);
+    popupMenu.add(actionDownloadMissingArtwork);
     popupMenu.add(actionTrailerDownload);
     popupMenu.add(actionSearchSubtitle);
     popupMenu.add(actionDownloadSubtitle);

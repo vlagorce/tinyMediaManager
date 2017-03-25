@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 Manuel Laggner
+ * Copyright 2012 - 2017 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,8 +44,8 @@ import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
-import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Message.MessageLevel;
+import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.movie.MovieModuleManager;
@@ -68,14 +68,14 @@ import com.fasterxml.jackson.databind.ObjectReader;
  * @author Manuel Laggner
  */
 public class TvShowList extends AbstractModelObject {
-  private static final Logger    LOGGER     = LoggerFactory.getLogger(TvShowList.class);
-  private static TvShowList      instance   = null;
+  private static final Logger    LOGGER   = LoggerFactory.getLogger(TvShowList.class);
+  private static TvShowList      instance = null;
 
-  private List<TvShow>           tvShowList = ObservableCollections.observableList(Collections.synchronizedList(new ArrayList<TvShow>()));
-  private List<String>           tvShowTagsObservable;
-  private List<String>           episodeTagsObservable;
-  private List<String>           videoCodecsObservable;
-  private List<String>           audioCodecsObservable;
+  private final List<TvShow>     tvShowList;
+  private final List<String>     tvShowTagsObservable;
+  private final List<String>     episodeTagsObservable;
+  private final List<String>     videoCodecsObservable;
+  private final List<String>     audioCodecsObservable;
 
   private PropertyChangeListener propertyChangeListener;
 
@@ -84,6 +84,7 @@ public class TvShowList extends AbstractModelObject {
    */
   private TvShowList() {
     // create the lists
+    tvShowList = ObservableCollections.observableList(Collections.synchronizedList(new ArrayList<TvShow>()));
     tvShowTagsObservable = ObservableCollections.observableList(new CopyOnWriteArrayList<String>());
     episodeTagsObservable = ObservableCollections.observableList(new CopyOnWriteArrayList<String>());
     videoCodecsObservable = ObservableCollections.observableList(new CopyOnWriteArrayList<String>());
@@ -258,6 +259,15 @@ public class TvShowList extends AbstractModelObject {
     return count;
   }
 
+  public TvShow lookupTvShow(UUID uuid) {
+    for (TvShow tvShow : tvShowList) {
+      if (tvShow.getDbId().equals(uuid)) {
+        return tvShow;
+      }
+    }
+    return null;
+  }
+
   /**
    * Load tv shows from database.
    */
@@ -265,7 +275,7 @@ public class TvShowList extends AbstractModelObject {
     // load all TV shows from the database
     ObjectReader tvShowObjectReader = objectMapper.readerFor(TvShow.class);
 
-    for (UUID uuid : tvShowMap.keyList()) {
+    for (UUID uuid : new ArrayList<>(tvShowMap.keyList())) {
       try {
         TvShow tvShow = tvShowObjectReader.readValue(tvShowMap.get(uuid));
         tvShow.setDbId(uuid);
@@ -274,7 +284,9 @@ public class TvShowList extends AbstractModelObject {
         tvShowList.add(tvShow);
       }
       catch (Exception e) {
-        LOGGER.warn("problem decoding TV show json string: ", e);
+        LOGGER.warn("problem decoding TV show json string: " + e.getMessage());
+        LOGGER.info("dropping corrupt TV show");
+        tvShowMap.remove(uuid);
       }
     }
     LOGGER.info("found " + tvShowList.size() + " TV shows in database");
@@ -288,7 +300,7 @@ public class TvShowList extends AbstractModelObject {
     ObjectReader episodeObjectReader = objectMapper.readerFor(TvShowEpisode.class);
     int episodeCount = 0;
 
-    for (UUID uuid : episodesMap.keyList()) {
+    for (UUID uuid : new ArrayList<>(episodesMap.keyList())) {
       try {
         episodeCount++;
         TvShowEpisode episode = episodeObjectReader.readValue(episodesMap.get(uuid));
@@ -304,7 +316,9 @@ public class TvShowList extends AbstractModelObject {
         }
       }
       catch (Exception e) {
-        LOGGER.warn("problem decoding episode json string: ", e);
+        LOGGER.warn("problem decoding episode json string: " + e.getMessage());
+        LOGGER.info("dropping corrupt episode");
+        episodesMap.remove(uuid);
       }
     }
     LOGGER.info("found " + episodeCount + " episodes in database");

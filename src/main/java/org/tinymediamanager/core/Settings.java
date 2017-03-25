@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 Manuel Laggner
+ * Copyright 2012 - 2017 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,14 +75,15 @@ import org.tinymediamanager.scraper.util.StrgUtils;
 @XmlRootElement(name = "tinyMediaManager")
 public class Settings extends AbstractModelObject {
   private static final Logger         LOGGER                      = LoggerFactory.getLogger(Settings.class);
-  private final static String         DEFAULT_CONFIG_FOLDER       = "data";
-  private String                      settingsFolder              = DEFAULT_CONFIG_FOLDER;
+  private static final String         DEFAULT_CONFIG_FOLDER       = "data";
+  private static final String         DEFAULT_CONFIG_FILE         = "config.xml";
+  private static String               settingsFolder              = DEFAULT_CONFIG_FOLDER;
+  private static String               configFile                  = DEFAULT_CONFIG_FILE;
   private static Settings             instance;
 
   /**
    * Constants mainly for events
    */
-  private final static String         CONFIG_FILE                 = "config.xml";
   private final static String         TITLE_PREFIX                = "titlePrefix";
   private final static String         PREFIX                      = "prefix";
   private final static String         VIDEO_FILE_TYPE             = "videoFileTypes";
@@ -98,6 +99,9 @@ public class Settings extends AbstractModelObject {
   private final static String         LANGUAGE                    = "language";
   private final static String         WOL_DEVICES                 = "wolDevices";
   private final static String         ENABLE_ANALYTICS            = "enableAnalytics";
+
+  private final static String         UPNP_SHARE_LIBRARY          = "upnpShareLibrary";
+  private final static String         UPNP_PLAY_ON_REMOTE         = "upnpRemotePlay";
 
   @XmlElementWrapper(name = TITLE_PREFIX)
   @XmlElement(name = PREFIX)
@@ -155,6 +159,9 @@ public class Settings extends AbstractModelObject {
   @XmlTransient
   public boolean                      newConfig                   = false;
 
+  private boolean                     upnpShareLibrary            = false;
+  private boolean                     upnpRemotePlay              = false;
+
   /**
    * Instantiates a new settings.
    */
@@ -187,8 +194,8 @@ public class Settings extends AbstractModelObject {
    * 
    * @return single instance of Settings
    */
-  public synchronized static Settings getInstance() {
-    return getInstance(DEFAULT_CONFIG_FOLDER);
+  public static synchronized Settings getInstance() {
+    return getInstance(settingsFolder);
   }
 
   /**
@@ -197,7 +204,17 @@ public class Settings extends AbstractModelObject {
    * 
    * @return single instance of Settings
    */
-  public synchronized static Settings getInstance(String folder) {
+  public static synchronized Settings getInstance(String folder) {
+    return getInstance(folder, configFile);
+  }
+
+  /**
+   * Override our settings folder (defaults to "data")<br>
+   * <b>Should only be used for unit testing et all!</b><br>
+   * 
+   * @return single instance of Settings
+   */
+  public static synchronized Settings getInstance(String folder, String configFile) {
     if (Settings.instance == null) {
 
       // upgrade/move into own config dir
@@ -206,7 +223,7 @@ public class Settings extends AbstractModelObject {
       Path cfgFolder = Paths.get("config"); // old impl
       if (Files.isDirectory(cfgFolder)) {
         try {
-          Utils.moveDirectorySafe(cfgFolder, Paths.get(folder));
+          Utils.moveDirectorySafe(cfgFolder, Paths.get(DEFAULT_CONFIG_FOLDER)); // migrate only default
         }
         catch (IOException e) {
           LOGGER.warn("error migrating config folder");
@@ -223,10 +240,11 @@ public class Settings extends AbstractModelObject {
         }
       }
 
-      Path oldCfg = Paths.get(CONFIG_FILE);
+      // migrate only default config.xml
+      Path oldCfg = Paths.get(DEFAULT_CONFIG_FILE);
       if (Utils.isRegularFile(oldCfg)) {
         try {
-          Utils.moveFileSafe(oldCfg, cfgFolder.resolve(CONFIG_FILE));
+          Utils.moveFileSafe(oldCfg, cfgFolder.resolve(DEFAULT_CONFIG_FILE));
         }
         catch (IOException e) {
           LOGGER.warn("error migrating config.xml");
@@ -239,16 +257,18 @@ public class Settings extends AbstractModelObject {
         context = JAXBContext.newInstance(Settings.class);
         Unmarshaller um = context.createUnmarshaller();
         try {
-          LOGGER.debug("Loading settings from " + folder);
-          Reader in = new InputStreamReader(new FileInputStream(new File(folder, CONFIG_FILE)), "UTF-8");
+          LOGGER.debug("Loading settings from " + folder + "/" + configFile);
+          Reader in = new InputStreamReader(new FileInputStream(new File(folder, configFile)), "UTF-8");
           Settings.instance = (Settings) um.unmarshal(in);
           Settings.instance.settingsFolder = folder;
+          Settings.instance.configFile = configFile;
         }
         catch (Exception e) {
           LOGGER.warn("could not load settings - creating default ones...");
           Settings.instance = new Settings();
           Settings.instance.newConfig = true;
           Settings.instance.settingsFolder = folder;
+          Settings.instance.configFile = configFile;
           Settings.instance.writeDefaultSettings();
         }
         Settings.instance.clearDirty();
@@ -483,7 +503,7 @@ public class Settings extends AbstractModelObject {
         sb = new StringBuilder(sb.toString().replaceAll("(?<!\r)\n", "\r\n"));
       }
 
-      w = new FileWriter(new File(settingsFolder, CONFIG_FILE));
+      w = new FileWriter(new File(settingsFolder, configFile));
       String xml = sb.toString();
       IOUtils.write(xml, w);
 
@@ -965,6 +985,46 @@ public class Settings extends AbstractModelObject {
     CacheType oldValue = this.imageCacheType;
     this.imageCacheType = newValue;
     firePropertyChange(IMAGE_CACHE_TYPE, oldValue, newValue);
+  }
+
+  /**
+   * is our library shared via UPNP?
+   * 
+   * @return
+   */
+  public boolean isUpnpShareLibrary() {
+    return upnpShareLibrary;
+  }
+
+  /**
+   * share library via UPNP?
+   * 
+   * @param upnpShareLibrary
+   */
+  public void setUpnpShareLibrary(boolean upnpShareLibrary) {
+    boolean old = this.upnpShareLibrary;
+    this.upnpShareLibrary = upnpShareLibrary;
+    firePropertyChange(UPNP_SHARE_LIBRARY, old, upnpShareLibrary);
+  }
+
+  /**
+   * should we search for rendering devices like Kodi, TVs, et all?
+   * 
+   * @return
+   */
+  public boolean isUpnpRemotePlay() {
+    return upnpRemotePlay;
+  }
+
+  /**
+   * should we search for rendering devices like Kodi, TVs, et all?
+   * 
+   * @param upnpRemotePlay
+   */
+  public void setUpnpRemotePlay(boolean upnpRemotePlay) {
+    boolean old = this.upnpRemotePlay;
+    this.upnpRemotePlay = upnpRemotePlay;
+    firePropertyChange(UPNP_PLAY_ON_REMOTE, old, upnpRemotePlay);
   }
 
   /**

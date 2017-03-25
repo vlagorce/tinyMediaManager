@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 Manuel Laggner
+ * Copyright 2012 - 2017 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -163,7 +163,12 @@ public class TvShowEpisodeToXbmcNfoConnector {
     }
     String nfoFilename = mf.getBasename() + ".nfo";
     if (episode.isDisc()) {
-      nfoFilename = "VIDEO_TS.nfo"; // FIXME: BluRay?
+      if (mf.isBlurayFile()) {
+        nfoFilename = "BDMV.nfo"; // dunno, but more correct
+      }
+      if (mf.isDVDFile()) {
+        nfoFilename = "VIDEO_TS.nfo";
+      }
     }
 
     File nfoFile = new File(episode.getPath(), nfoFilename);

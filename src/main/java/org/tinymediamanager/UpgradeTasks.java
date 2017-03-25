@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 Manuel Laggner
+ * Copyright 2012 - 2017 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
+import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSetArtworkHelper;
@@ -105,6 +106,20 @@ public class UpgradeTasks {
               FileUtils.deleteQuietly(subdir);
             }
           }
+        }
+      }
+    }
+
+    // upgrade to v2.9.3
+    if (StrgUtils.compareVersion(v, "2.9.3") < 0) {
+      LOGGER.info("Performing upgrade tasks to version 2.9.3");
+      // rename data/tmm_ui.prop to data/tmm.prop
+      Path uiProp = Paths.get(Settings.getInstance().getSettingsFolder(), "tmm_ui.prop");
+      if (Files.exists(uiProp)) {
+        try {
+          FileUtils.moveFile(uiProp.toFile(), new File(Settings.getInstance().getSettingsFolder(), "tmm.prop"));
+        }
+        catch (Exception ignored) {
         }
       }
     }
@@ -482,6 +497,39 @@ public class UpgradeTasks {
             catch (IOException ex) {
             }
           }
+        }
+      }
+    }
+
+    // upgrade to v2.9.3
+    if (StrgUtils.compareVersion(v, "2.9.3") < 0) {
+      LOGGER.info("Performing database upgrade tasks to version 2.9.3");
+
+      // rewrite all NFOs to get rid of null strings
+      // and update all actor paths
+      for (Movie movie : movieList.getMovies()) {
+        for (Person person : movie.getActors()) {
+          person.setEntityRoot(movie.getPathNIO());
+        }
+        for (Person person : movie.getProducers()) {
+          person.setEntityRoot(movie.getPathNIO());
+        }
+        movie.saveToDb();
+      }
+      for (MovieSet movieSet : movieList.getMovieSetList()) {
+        movieSet.saveToDb();
+      }
+
+      for (TvShow show : tvShowList.getTvShows()) {
+        for (Person person : show.getActors()) {
+          person.setEntityRoot(show.getPathNIO());
+        }
+        show.saveToDb();
+        for (TvShowEpisode episode : show.getEpisodes()) {
+          for (Person person : episode.getGuests()) {
+            person.setEntityRoot(episode.getPathNIO());
+          }
+          episode.saveToDb();
         }
       }
     }

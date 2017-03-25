@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 Manuel Laggner
+ * Copyright 2012 - 2017 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,6 +83,7 @@ import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaCastMember;
 import org.tinymediamanager.scraper.entities.MediaGenres;
+import org.tinymediamanager.scraper.util.StrgUtils;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -197,6 +198,30 @@ public class TvShow extends MediaEntity {
 
     for (TvShowEpisode episode : episodes) {
       episode.addPropertyChangeListener(propertyChangeListener);
+    }
+  }
+
+  /**
+   * Overwrites all null/empty elements with "other" value (but might be empty also)<br>
+   * For lists, check with 'contains' and add.<br>
+   * Do NOT merge path, dateAdded, scraped, mediaFiles and other crucial properties!
+   */
+  public void merge(TvShow other) {
+    super.merge(other);
+
+    // get ours, and merge other values
+    for (TvShowEpisode ep : episodes) {
+      TvShowEpisode otherEP = other.getEpisode(ep.getSeason(), ep.getEpisode());
+      ep.merge(otherEP);
+    }
+    // get others, and simply add
+    for (TvShowEpisode otherEp : other.getEpisodes()) {
+      TvShowEpisode ourEP = getEpisode(otherEp.getSeason(), otherEp.getEpisode()); // do not do a contains check!
+      if (ourEP == null) {
+        TvShowEpisode clone = new TvShowEpisode(otherEp);
+        clone.setTvShow(this); // yes!
+        addEpisode(clone);
+      }
     }
   }
 
@@ -886,8 +911,12 @@ public class TvShow extends MediaEntity {
    * @throws ParseException
    *           if string cannot be parsed!
    */
-  public void setFirstAired(String aired) throws ParseException {
-    setFirstAired(org.tinymediamanager.scraper.util.StrgUtils.parseDate(aired));
+  public void setFirstAired(String aired) {
+    try {
+      setFirstAired(StrgUtils.parseDate(aired));
+    }
+    catch (ParseException e) {
+    }
   }
 
   /**
@@ -1071,7 +1100,7 @@ public class TvShow extends MediaEntity {
   public void addActor(TvShowActor obj) {
     // and re-set TV show path to the actor
     if (StringUtils.isBlank(obj.getEntityRoot())) {
-      obj.setEntityRoot(getPathNIO().toString());
+      obj.setEntityRoot(getPathNIO());
     }
 
     actors.add(obj);
@@ -1127,7 +1156,7 @@ public class TvShow extends MediaEntity {
     // and re-set TV show path to the actors
     for (TvShowActor actor : actors) {
       if (StringUtils.isBlank(actor.getEntityRoot())) {
-        actor.setEntityRoot(getPathNIO().toString());
+        actor.setEntityRoot(getPathNIO());
       }
     }
 
@@ -1220,7 +1249,7 @@ public class TvShow extends MediaEntity {
   public List<TvShowEpisode> getEpisodesToScrape() {
     List<TvShowEpisode> episodes = new ArrayList<>();
     for (TvShowEpisode episode : new ArrayList<>(this.episodes)) {
-      if (episode.getSeason() > -1 && episode.getEpisode() > -1) {
+      if (episode.getFirstAired() != null || (episode.getSeason() > -1 && episode.getEpisode() > -1)) {
         episodes.add(episode);
       }
     }

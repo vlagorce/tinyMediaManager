@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 Manuel Laggner
+ * Copyright 2012 - 2017 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -345,7 +345,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    */
   public void setFirstAired(String aired) {
     try {
-      this.firstAired = StrgUtils.parseDate(aired);
+      setFirstAired(StrgUtils.parseDate(aired));
     }
     catch (ParseException e) {
     }
@@ -472,9 +472,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       MediaFile mf = getMediaFiles(MediaFileType.VIDEO).get(0);
       String filename;
       String basename = FilenameUtils.getBaseName(mf.getFilename());
-      if (isDisc()) {
-        basename = "VIDEO_TS"; // FIXME: BluRay?
-      }
 
       switch (TvShowModuleManager.SETTINGS.getTvShowEpisodeThumbFilename()) {
         case FILENAME_THUMB_POSTFIX:
@@ -492,6 +489,9 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
         default:
           filename = "";
           break;
+      }
+      if (isDisc()) {
+        filename = "thumb." + FilenameUtils.getExtension(thumbUrl); // DVD/BluRay fixate to thumb.ext
       }
 
       if (StringUtils.isBlank(thumbUrl) || StringUtils.isBlank(filename)) {
@@ -681,7 +681,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   public void addActor(TvShowActor obj) {
     // and re-set episode path to the actor
     if (StringUtils.isBlank(obj.getEntityRoot())) {
-      obj.setEntityRoot(getPathNIO().toString());
+      obj.setEntityRoot(getPathNIO());
     }
 
     actors.add(obj);
@@ -754,7 +754,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     // and re-set episode path to the actors
     for (TvShowActor actor : actors) {
       if (StringUtils.isBlank(actor.getEntityRoot())) {
-        actor.setEntityRoot(getPathNIO().toString());
+        actor.setEntityRoot(getPathNIO());
       }
     }
 
@@ -869,6 +869,19 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    */
   public List<MediaFile> getVideoFiles() {
     return getMediaFiles(MediaFileType.VIDEO);
+  }
+
+  /**
+   * get the first video file for this episode
+   *
+   * @return the first video file
+   */
+  public MediaFile getFirstVideoFile() {
+    List<MediaFile> videoFiles = getVideoFiles();
+    if (!videoFiles.isEmpty()) {
+      return videoFiles.get(0);
+    }
+    return null;
   }
 
   /**

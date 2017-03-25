@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 Manuel Laggner
+ * Copyright 2012 - 2017 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,15 +33,15 @@ import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
-import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.UTF8Control;
 import org.tinymediamanager.ui.components.LinkLabel;
+import org.tinymediamanager.ui.components.UpnpPlayButton;
 
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
@@ -174,21 +174,17 @@ public class MovieDetailsPanel extends JPanel {
     lblOriginalTitle = new JLabel("");
     add(lblOriginalTitle, "4, 2, 7, 1");
 
-    btnPlay = new JButton("");
-    btnPlay.setIcon(IconManager.PLAY);
-    btnPlay.addActionListener(new ActionListener() {
+    btnPlay = new UpnpPlayButton() {
       @Override
-      public void actionPerformed(ActionEvent arg0) {
-        MediaFile mf = movieSelectionModel.getSelectedMovie().getMediaFiles(MediaFileType.VIDEO).get(0);
-        try {
-          TmmUIHelper.openFile(mf.getFileAsPath());
-        }
-        catch (Exception e) {
-          MessageManager.instance
-              .pushMessage(new Message(MessageLevel.ERROR, mf, "message.erroropenfile", new String[] { ":", e.getLocalizedMessage() }));
-        }
+      public MediaFile getMediaFile() {
+        return movieSelectionModel.getSelectedMovie().getFirstVideoFile();
       }
-    });
+
+      @Override
+      public MediaEntity getMediaEntity() {
+        return movieSelectionModel.getSelectedMovie();
+      }
+    };
     add(btnPlay, "12, 2, 1, 5");
 
     lblGenresT = new JLabel(BUNDLE.getString("metatag.genre")); //$NON-NLS-1$

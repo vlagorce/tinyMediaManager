@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 Manuel Laggner
+ * Copyright 2012 - 2017 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,6 +69,7 @@ import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.WolDevice;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.thirdparty.MediaInfo;
+import org.tinymediamanager.thirdparty.upnp.Upnp;
 import org.tinymediamanager.ui.actions.AboutAction;
 import org.tinymediamanager.ui.actions.BugReportAction;
 import org.tinymediamanager.ui.actions.ClearDatabaseAction;
@@ -493,6 +494,8 @@ public class MainWindow extends JFrame {
       LOGGER.info("bye bye");
       try {
         Utils.trackEvent("shutdown");
+        // shutdown UPNP stack
+        Upnp.getInstance().shutdown();
         // send shutdown signal
         TmmTaskManager.getInstance().shutdown();
         // save unsaved settings

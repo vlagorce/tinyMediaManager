@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 Manuel Laggner
+ * Copyright 2012 - 2017 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -224,9 +224,9 @@ public class Movie extends MediaEntity {
     this.top250 = this.top250 == 0 ? other.getTop250() : this.top250;
     this.releaseDate = this.releaseDate == null ? other.getReleaseDate() : this.releaseDate;
     this.movieSet = this.movieSet == null ? other.getMovieSet() : this.movieSet;
-    this.mediaSource = this.mediaSource == MediaSource.UNKNOWN ? other.getMediaSource() : MediaSource.UNKNOWN;
-    this.certification = this.certification == Certification.NOT_RATED ? other.getCertification() : Certification.NOT_RATED;
-    this.edition = this.edition == MovieEdition.NONE ? other.getEdition() : MovieEdition.NONE;
+    this.mediaSource = this.mediaSource == MediaSource.UNKNOWN ? other.getMediaSource() : this.mediaSource;
+    this.certification = this.certification == Certification.NOT_RATED ? other.getCertification() : this.certification;
+    this.edition = this.edition == MovieEdition.NONE ? other.getEdition() : this.edition;
 
     for (MediaGenres genre : other.getGenres()) {
       addGenre(genre); // already checks dupes
@@ -348,15 +348,22 @@ public class Movie extends MediaEntity {
   }
 
   /**
-   * Gets the checks for images.
+   * Gets the check mark for images.<br>
+   * Assumes true, but when PosterFilename is set and we do not have a poster, return false<br>
+   * same for fanarts.
    * 
    * @return the checks for images
    */
   public Boolean getHasImages() {
-    if (!StringUtils.isEmpty(getArtworkFilename(MediaFileType.POSTER)) && !StringUtils.isEmpty(getArtworkFilename(MediaFileType.FANART))) {
-      return true;
+    if (!MovieModuleManager.MOVIE_SETTINGS.getMoviePosterFilenames().isEmpty() && StringUtils.isEmpty(getArtworkFilename(MediaFileType.POSTER))) {
+      return false;
     }
-    return false;
+
+    if (!MovieModuleManager.MOVIE_SETTINGS.getMovieFanartFilenames().isEmpty() && StringUtils.isEmpty(getArtworkFilename(MediaFileType.FANART))) {
+      return false;
+    }
+
+    return true;
   }
 
   /**
@@ -421,7 +428,7 @@ public class Movie extends MediaEntity {
   public void addActor(MovieActor obj) {
     // and re-set movie path the actors
     if (StringUtils.isBlank(obj.getEntityRoot())) {
-      obj.setEntityRoot(getPathNIO().toString());
+      obj.setEntityRoot(getPathNIO());
     }
 
     actors.add(obj);
@@ -1208,7 +1215,7 @@ public class Movie extends MediaEntity {
     // and re-set movie path to the actors
     for (MovieActor actor : actors) {
       if (StringUtils.isBlank(actor.getEntityRoot())) {
-        actor.setEntityRoot(getPathNIO().toString());
+        actor.setEntityRoot(getPathNIO());
       }
     }
 
@@ -1933,8 +1940,26 @@ public class Movie extends MediaEntity {
     }
   }
 
+  /**
+   * get all video files for that movie
+   *
+   * @return a list of all video files
+   */
   public List<MediaFile> getVideoFiles() {
     return getMediaFiles(MediaFileType.VIDEO);
+  }
+
+  /**
+   * get the first video file for this entity
+   * 
+   * @return the first video file
+   */
+  public MediaFile getFirstVideoFile() {
+    List<MediaFile> videoFiles = getVideoFiles();
+    if (!videoFiles.isEmpty()) {
+      return videoFiles.get(0);
+    }
+    return null;
   }
 
   /**
@@ -1977,7 +2002,7 @@ public class Movie extends MediaEntity {
   public void addProducer(MovieProducer obj) {
     // and re-set movie path of the producer
     if (StringUtils.isBlank(obj.getEntityRoot())) {
-      obj.setEntityRoot(getPathNIO().toString());
+      obj.setEntityRoot(getPathNIO());
     }
 
     producers.add(obj);
@@ -2030,7 +2055,7 @@ public class Movie extends MediaEntity {
     // and re-set movie path to the producers
     for (MovieProducer producer : producers) {
       if (StringUtils.isBlank(producer.getEntityRoot())) {
-        producer.setEntityRoot(getPathNIO().toString());
+        producer.setEntityRoot(getPathNIO());
       }
     }
 

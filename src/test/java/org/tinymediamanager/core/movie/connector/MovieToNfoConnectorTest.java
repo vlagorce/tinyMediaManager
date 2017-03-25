@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,6 +16,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.tinymediamanager.BasicTest;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.Settings;
@@ -30,17 +32,17 @@ import org.tinymediamanager.core.movie.entities.MovieTrailer;
 import org.tinymediamanager.scraper.entities.Certification;
 import org.tinymediamanager.scraper.entities.MediaGenres;
 
-public class MovieToNfoConnectorTest {
+public class MovieToNfoConnectorTest extends BasicTest {
 
   @BeforeClass
   public static void setup() {
-    // create a default config file for config access
-    Settings.getInstance("target/test-classes/");
+    FileUtils.deleteQuietly(new File(getSettingsFolder()));
+    Settings.getInstance(getSettingsFolder());
   }
 
   @Test
-  public void testXbmcNfo() {
-    FileUtils.deleteQuietly(new File("target/test-classes/xbmc_nfo/"));
+  public void testXbmcNfo() throws IOException {
+    Files.createDirectories(Paths.get(getSettingsFolder(), "xbmc_nfo"));
     try {
       Movie movie = createXbmcMovie();
 
@@ -74,7 +76,7 @@ public class MovieToNfoConnectorTest {
       List<MovieNfoNaming> nfoNames = Arrays.asList(MovieNfoNaming.MOVIE_NFO);
       MovieToXbmcNfoConnector.writeNfoFiles(movie, xbmc, nfoNames);
 
-      Path nfoFile = Paths.get("target/test-classes/xbmc_nfo/movie.nfo");
+      Path nfoFile = Paths.get(getSettingsFolder(), "xbmc_nfo/movie.nfo");
       assertThat(Files.exists(nfoFile)).isTrue();
 
       // unmarshal it
@@ -87,10 +89,11 @@ public class MovieToNfoConnectorTest {
   }
 
   @Test
-  public void testKodiNfo() {
-    FileUtils.deleteQuietly(new File("target/test-classes/kodi_nfo/"));
+  public void testKodiNfo() throws IOException {
+    Files.createDirectories(Paths.get(getSettingsFolder(), "kodi_nfo"));
     try {
       Movie movie = createXbmcMovie();
+      movie.setPath(getSettingsFolder() + "/kodi_nfo"); // differs from
 
       MovieToKodiNfoConnector kodi = MovieToKodiNfoConnector.createInstanceFromMovie(movie);
       assertThat(kodi).isNotNull();
@@ -123,7 +126,7 @@ public class MovieToNfoConnectorTest {
       List<MovieNfoNaming> nfoNames = Arrays.asList(MovieNfoNaming.MOVIE_NFO);
       MovieToKodiNfoConnector.writeNfoFiles(movie, kodi, nfoNames);
 
-      Path nfoFile = Paths.get("target/test-classes/xbmc_nfo/movie.nfo");
+      Path nfoFile = Paths.get(getSettingsFolder(), "kodi_nfo/movie.nfo");
       assertThat(Files.exists(nfoFile)).isTrue();
 
       // unmarshal it
@@ -136,8 +139,8 @@ public class MovieToNfoConnectorTest {
   }
 
   @Test
-  public void testMediaPortalNfo() {
-    FileUtils.deleteQuietly(new File("target/test-classes/mp_nfo/"));
+  public void testMediaPortalNfo() throws IOException {
+    Files.createDirectories(Paths.get(getSettingsFolder(), "mp_nfo"));
     try {
       Movie movie = createMpMovie();
 
@@ -147,7 +150,7 @@ public class MovieToNfoConnectorTest {
       // check values which does not get reimported
       assertThat(mp.outline).isNotEmpty();
       assertThat(mp.mpaa).isNotEmpty();
-      assertThat(mp.sets).isNotEmpty();
+      assertThat(mp.sets).isNotEmpty(); // FIXME: mp.set vs mp.sets?
       assertThat(mp.sets.get(0).name).isNotEmpty();
       assertThat(mp.sets.get(0).order).isEqualTo(0); // is null because the lookup in the list returns -1 and 1 is added
       assertThat(mp.playcount).isGreaterThan(0);
@@ -159,7 +162,7 @@ public class MovieToNfoConnectorTest {
       List<MovieNfoNaming> nfoNames = Arrays.asList(MovieNfoNaming.FILENAME_NFO);
       MovieToMpNfoConnector.writeNfoFiles(movie, mp, nfoNames);
 
-      Path nfoFile = Paths.get("target/test-classes/mp_nfo/Aladdin.nfo");
+      Path nfoFile = Paths.get(getSettingsFolder(), "mp_nfo/Aladdin.nfo");
       assertThat(Files.exists(nfoFile)).isTrue();
 
       // unmarshal it
@@ -215,7 +218,7 @@ public class MovieToNfoConnectorTest {
 
   private Movie createXbmcMovie() throws Exception {
     Movie movie = new Movie();
-    movie.setPath("target/test-classes/xbmc_nfo");
+    movie.setPath(getSettingsFolder() + "/xbmc_nfo");
     movie.setTitle("Aladdin");
     movie.setOriginalTitle("Disneys Aladdin");
     movie.setSortTitle("Aladdin");
@@ -291,7 +294,7 @@ public class MovieToNfoConnectorTest {
 
   private Movie createMpMovie() throws Exception {
     Movie movie = new Movie();
-    movie.setPath("target/test-classes/mp_nfo");
+    movie.setPath(getSettingsFolder() + "/mp_nfo");
     movie.setTitle("Aladdin");
     movie.setOriginalTitle("Disneys Aladdin");
     movie.setSortTitle("Aladdin");

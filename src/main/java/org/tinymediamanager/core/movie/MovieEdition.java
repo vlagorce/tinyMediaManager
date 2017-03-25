@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 Manuel Laggner
+ * Copyright 2012 - 2017 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,10 @@ public enum MovieEdition {
     }
   }
 
+  public String getTitle() {
+    return title;
+  }
+
   public String toString() {
     return title;
   }
@@ -65,6 +69,16 @@ public enum MovieEdition {
     for (MovieEdition edition : MovieEdition.values()) {
       if (edition == NONE) {
         continue;
+      }
+
+      if (edition.name().equalsIgnoreCase(stringToParse)) {
+        foundEdition = edition;
+        break;
+      }
+
+      if (edition.title.equalsIgnoreCase(stringToParse)) {
+        foundEdition = edition;
+        break;
       }
 
       Matcher matcher = edition.pattern.matcher(stringToParse);

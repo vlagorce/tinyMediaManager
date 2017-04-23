@@ -1,3 +1,8 @@
+Version 2.9.4
+=======================
+x fixed default value for copyArtwork exporting
+
+
 Version 2.9.3
 =======================
 + HOTFIX: use 0.7.93 MediaInfo lib, latest one crashes on ISO files!

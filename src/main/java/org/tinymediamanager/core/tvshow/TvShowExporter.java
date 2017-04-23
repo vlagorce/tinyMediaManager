@@ -252,14 +252,17 @@ public class TvShowExporter extends MediaEntityExporter {
     public String render(Object o, String pattern, Locale locale) {
       if (o instanceof TvShow || o instanceof TvShowEpisode) {
         MediaEntity entity = (MediaEntity) o;
-        Map<String, Object> parameters = new HashMap<String, Object>();
+        Map<String, Object> parameters = new HashMap<>();
         if (pattern != null) {
           parameters = parseParameters(pattern);
         }
 
         MediaFile mf = entity.getArtworkMap().get(parameters.get("type"));
         if (mf == null || !mf.isGraphic()) {
-          return null;
+          if (StringUtils.isNotBlank((String) parameters.get("default"))) {
+            return (String) parameters.get("default");
+          }
+          return ""; // pass an emtpy string to prevent tvShow.toString() gets triggered by jmte
         }
 
         String filename = getFilename(entity) + "-" + mf.getType();
@@ -295,12 +298,15 @@ public class TvShowExporter extends MediaEntityExporter {
         }
         catch (Exception e) {
           LOGGER.error("could not copy artwork file: ", e);
-          return "";
+          if (StringUtils.isNotBlank((String) parameters.get("default"))) {
+            return (String) parameters.get("default");
+          }
+          return ""; // pass an emtpy string to prevent tvShow.toString() gets triggered by jmte
         }
 
         return filename;
       }
-      return null;
+      return ""; // pass an emtpy string to prevent obj.toString() gets triggered by jmte
     }
 
     /**
@@ -342,7 +348,7 @@ public class TvShowExporter extends MediaEntityExporter {
             break;
 
           case "destination":
-            parameterMap.put("destination", value);
+            parameterMap.put(key, value);
             break;
 
           case "thumb":
@@ -355,6 +361,10 @@ public class TvShowExporter extends MediaEntityExporter {
             }
             catch (Exception e) {
             }
+            break;
+
+          case "default":
+            parameterMap.put(key, value);
             break;
 
           default:

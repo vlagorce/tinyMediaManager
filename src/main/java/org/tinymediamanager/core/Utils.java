@@ -863,6 +863,7 @@ public class Utils {
           rename = true;// no exception
         }
         catch (IOException e) {
+          LOGGER.warn("copy did not work" + e.getMessage());
         }
 
         if (rename) {

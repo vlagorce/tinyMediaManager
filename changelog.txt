@@ -1,6 +1,7 @@
 Version 2.9.4
 =======================
 x fixed default value for copyArtwork exporting
+x fixed TV multi episode renaming #143
 
 
 Version 2.9.3

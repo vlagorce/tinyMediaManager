@@ -3,6 +3,7 @@ Version 2.9.4
 + export movies/tv shows via command line #116
 x fixed default value for copyArtwork exporting
 x fixed TV multi episode renaming #143
+x fixed handling of JPEG images
 
 
 Version 2.9.3

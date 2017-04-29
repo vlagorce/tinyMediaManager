@@ -334,9 +334,9 @@ public class MovieArtworkHelper {
       boolean firstImage = false;
       String filename = getFanartFilename(name, movie);
 
-      // only store .png as png and .jpg as jpg; .tbn will be stored as .jpg
-      String generatedFiletype = FilenameUtils.getExtension(filename);
-      String providedFiletype = FilenameUtils.getExtension(fanartUrl);
+      // only store .png as png and .jpg/.jpeg as jpg; .tbn will be stored as .jpg
+      String generatedFiletype = FilenameUtils.getExtension(filename).replaceAll("jpeg", "jpg");
+      String providedFiletype = FilenameUtils.getExtension(fanartUrl).replaceAll("jpeg", "jpg");
       if ("tbn".equals(providedFiletype)) {
         providedFiletype = "jpg";
       }
@@ -416,9 +416,9 @@ public class MovieArtworkHelper {
       boolean firstImage = false;
       String filename = getPosterFilename(name, movie);
 
-      // only store .png as png and .jpg as jpg
-      String generatedFiletype = FilenameUtils.getExtension(filename);
-      String providedFiletype = FilenameUtils.getExtension(posterUrl);
+      // only store .png as png and .jpg/.jpeg as jpg
+      String generatedFiletype = FilenameUtils.getExtension(filename).replaceAll("jpeg", "jpg");
+      String providedFiletype = FilenameUtils.getExtension(posterUrl).replaceAll("jpeg", "jpg");
       if (!generatedFiletype.equals(providedFiletype)) {
         continue;
       }

@@ -99,9 +99,9 @@ public class MovieSubtitleSearchAndDownloadTask extends TmmThreadPool {
             MediaFile mf = movie.getMediaFiles(MediaFileType.VIDEO).get(0);
 
             IMediaSubtitleProvider subtitleProvider = (IMediaSubtitleProvider) scraper.getMediaProvider();
-            SubtitleSearchOptions options = new SubtitleSearchOptions(mf.getFileAsPath().toFile());
+            SubtitleSearchOptions options = new SubtitleSearchOptions(mf.getFileAsPath().toFile(),movie.getOriginalTitle());
             options.setLanguage(LocaleUtils.toLocale(language.name()));
-
+            options.setImdbId(movie.getImdbId());
             List<SubtitleSearchResult> searchResults = subtitleProvider.search(options);
             if (searchResults.isEmpty()) {
               continue;
@@ -111,7 +111,8 @@ public class MovieSubtitleSearchAndDownloadTask extends TmmThreadPool {
             Collections.reverse(searchResults);
 
             SubtitleSearchResult firstResult = searchResults.get(0);
-            if (firstResult.getScore() < 1.0f || StringUtils.isBlank(firstResult.getUrl())) {
+
+            if (firstResult.getScore() < 0.9f || StringUtils.isBlank(firstResult.getUrl())) {
               continue;
             }
 

@@ -43,6 +43,7 @@
         <dependency>
             <groupId>org.tinymediamanager</groupId>
             <artifactId>api-scraper</artifactId>
+            <!-- stick to 2.5 for v2! -->
             <version>2.5</version>
         </dependency>
         <dependency>

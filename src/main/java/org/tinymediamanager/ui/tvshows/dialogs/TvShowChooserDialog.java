@@ -158,6 +158,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
     scraperMetadataConfig.setCast(settings.isCast());
     scraperMetadataConfig.setGenres(settings.isGenres());
     scraperMetadataConfig.setArtwork(settings.isArtwork());
+    scraperMetadataConfig.setEpisodes(settings.isEpisodes());
 
     getContentPane().setLayout(new BorderLayout());
     contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));

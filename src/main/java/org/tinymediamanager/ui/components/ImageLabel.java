@@ -51,7 +51,11 @@ import org.tinymediamanager.ui.UTF8Control;
  */
 public class ImageLabel extends JLabel {
   public enum Position {
-    TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, CENTER
+    TOP_LEFT,
+    TOP_RIGHT,
+    BOTTOM_LEFT,
+    BOTTOM_RIGHT,
+    CENTER
   }
 
   private static final long                  serialVersionUID   = -2524445544386464158L;
@@ -405,11 +409,8 @@ public class ImageLabel extends JLabel {
 
     @Override
     protected BufferedImage doInBackground() throws Exception {
-      Path file = null;
-      if (useCache) {
-        file = ImageCache.getCachedFile(Paths.get(imagePath));
-      }
-      else {
+      Path file = ImageCache.getCachedFile(Paths.get(imagePath));
+      if (file == null) {
         file = Paths.get(imagePath);
       }
 

@@ -1,10 +1,13 @@
 Version 2.9.4
 =======================
 + export movies/tv shows via command line #116
++ fixed various templates to use correct graphics
++ added new template (myXBMC)
 x fixed default value for copyArtwork exporting
 x fixed TV multi episode renaming #143
 x fixed handling of JPEG images
 x fixed storing preference for episode scrape
+x fixed deleting original graphics on cache-miss 
 x changed forum links to the kodi.tv domain
 
 Version 2.9.3

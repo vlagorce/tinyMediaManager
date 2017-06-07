@@ -130,6 +130,9 @@ public class ImagePanel extends JPanel implements HierarchyListener {
           }
           try {
             Path file = ImageCache.getCachedFile(mediaFile.getFileAsPath());
+            if (file == null) {
+              file = mediaFile.getFileAsPath();
+            }
             LOGGER.debug("loading " + file);
             BufferedImage bufferedImage = ImageCache.createImage(file);
             Point size = ImageCache.calculateSize(300, 100, bufferedImage.getWidth(), bufferedImage.getHeight(), true);

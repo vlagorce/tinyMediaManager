@@ -64,6 +64,7 @@ uresource = templates/ListExampleCsv.jar
 uresource = templates/ListExampleHtml.jar
 uresource = templates/ListExampleXml.jar
 uresource = templates/jQueryliscious.jar
+uresource = templates/myXBMC.jar
 uresource = templates/SimpleConfluence.jar
 uresource = templates/TvShowDetailExampleXml.jar
 

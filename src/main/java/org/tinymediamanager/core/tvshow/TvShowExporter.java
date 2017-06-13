@@ -17,6 +17,7 @@ package org.tinymediamanager.core.tvshow;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
@@ -88,7 +89,7 @@ public class TvShowExporter extends MediaEntityExporter {
     // prepare listfile
     Path listExportFile = null;
     if (fileExtension.equalsIgnoreCase("html")) {
-      listExportFile = exportDir.resolve("index.html");
+      listExportFile = exportDir.resolve("tvshows.html");
     }
     if (fileExtension.equalsIgnoreCase("xml")) {
       listExportFile = exportDir.resolve("tvshows.xml");
@@ -115,7 +116,7 @@ public class TvShowExporter extends MediaEntityExporter {
     root.put("tvShows", new ArrayList<>(tvShowsToExport));
     String output = engine.transform(listTemplate, root);
     Utils.writeStringToFile(listExportFile, output);
-    LOGGER.info("movie list generated: " + listExportFile);
+    LOGGER.info("TvShow list generated: " + listExportFile);
 
     if (StringUtils.isNotBlank(detailTemplate)) {
       for (MediaEntity me : tvShowsToExport) {
@@ -304,6 +305,14 @@ public class TvShowExporter extends MediaEntityExporter {
           return ""; // pass an emtpy string to prevent tvShow.toString() gets triggered by jmte
         }
 
+        if (parameters.get("escape") == Boolean.TRUE) {
+          try {
+            filename = URLEncoder.encode(filename, "UTF-8").replace("+", "%20");
+          }
+          catch (Exception ignored) {
+          }
+        }
+
         return filename;
       }
       return ""; // pass an emtpy string to prevent obj.toString() gets triggered by jmte
@@ -361,6 +370,10 @@ public class TvShowExporter extends MediaEntityExporter {
             }
             catch (Exception e) {
             }
+            break;
+
+          case "escape":
+            parameterMap.put(key, Boolean.parseBoolean(value));
             break;
 
           case "default":

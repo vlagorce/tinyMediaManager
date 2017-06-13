@@ -88,7 +88,7 @@ public class MovieExporter extends MediaEntityExporter {
     // prepare listfile
     Path listExportFile = null;
     if (fileExtension.equalsIgnoreCase("html")) {
-      listExportFile = exportDir.resolve("index.html");
+      listExportFile = exportDir.resolve("movielist.html");
     }
     if (fileExtension.equalsIgnoreCase("xml")) {
       listExportFile = exportDir.resolve("movielist.xml");

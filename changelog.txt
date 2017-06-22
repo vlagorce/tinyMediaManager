@@ -2,7 +2,8 @@ Version 2.9.4
 =======================
 + export movies/tv shows via command line #116
 + fixed various templates to use correct graphics
-+ added new template (myXBMC)
++ added new templates
+x fixed handling for nested movie structures
 x fixed default value for copyArtwork exporting
 x fixed TV multi episode renaming #143
 x fixed handling of JPEG images

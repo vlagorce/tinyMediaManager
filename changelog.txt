@@ -3,7 +3,7 @@ Version 2.9.4
 + export movies/tv shows via command line #116
 + fixed various templates to use correct graphics
 + added new templates
-+ added more icons for high res audio streams (Atmos, TrueHD, DTS:X)
++ added more icons for high res audio & video streams (Atmos, TrueHD, DTS:X, 4k)
 x fixed handling for nested movie structures
 x fixed default value for copyArtwork exporting
 x fixed TV multi episode renaming #143

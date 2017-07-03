@@ -1004,7 +1004,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     // get audio stream with highest channel count
     MediaFileAudioStream highestStream = getBestAudioStream();
     if (highestStream != null) {
-      channels = highestStream.getChannels();
+      channels = highestStream.getChannelsAsInt() + "ch";
     }
 
     return channels;
@@ -1569,7 +1569,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
 
           // AAC sometimes codes channels into Channel(s)_Original
           String channels = getMediaInfo(StreamKind.Audio, i, "Channel(s)_Original", "Channel(s)");
-          stream.setChannels(StringUtils.isEmpty(channels) ? "" : channels + "ch");
+          stream.setChannels(StringUtils.isEmpty(channels) ? "" : channels);
           try {
             String br = getMediaInfo(StreamKind.Audio, i, "BitRate");
             stream.setBitrate(Integer.parseInt(br) / 1024);

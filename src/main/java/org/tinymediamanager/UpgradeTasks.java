@@ -125,6 +125,13 @@ public class UpgradeTasks {
         }
       }
     }
+
+    // upgrade to v2.9.4
+    if (StrgUtils.compareVersion(v, "2.9.4") < 0) {
+      LOGGER.info("Performing upgrade tasks to version 2.9.4");
+      // activate new scraper
+      Settings.getInstance().getMovieSettings().addMovieArtworkScraper("animated");
+    }
   }
 
   private static void moveToConfigFolder(Path file) {

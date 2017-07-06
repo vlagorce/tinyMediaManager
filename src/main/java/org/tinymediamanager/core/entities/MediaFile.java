@@ -70,90 +70,93 @@ import com.madgag.gif.fmsware.GifDecoder;
  * @author Manuel Laggner
  */
 public class MediaFile extends AbstractModelObject implements Comparable<MediaFile> {
-  private static final Logger                        LOGGER             = LoggerFactory.getLogger(MediaFile.class);
+  private static final Logger                        LOGGER               = LoggerFactory.getLogger(MediaFile.class);
 
-  private static final String                        PATH               = "path";
-  private static final String                        FILENAME           = "filename";
-  private static final String                        FILESIZE           = "filesize";
-  private static final String                        FILESIZE_IN_MB     = "filesizeInMegabytes";
-  private static final List<String>                  PLEX_EXTRA_FOLDERS = Arrays.asList("behind the scenes", "behindthescenes", "deleted scenes",
+  private static final String                        PATH                 = "path";
+  private static final String                        FILENAME             = "filename";
+  private static final String                        FILESIZE             = "filesize";
+  private static final String                        FILESIZE_IN_MB       = "filesizeInMegabytes";
+  private static final List<String>                  PLEX_EXTRA_FOLDERS   = Arrays.asList("behind the scenes", "behindthescenes", "deleted scenes",
       "deletedscenes", "featurettes", "interviews", "scenes", "shorts");
 
-  private static Pattern                             moviesetPattern    = Pattern
+  private static Pattern                             moviesetPattern      = Pattern
       .compile("(?i)movieset-(poster|fanart|banner|disc|discart|logo|clearlogo|clearart|thumb)\\..{2,4}");
-  private static Pattern                             posterPattern      = Pattern
+  private static Pattern                             posterPattern        = Pattern
       .compile("(?i)(.*-poster|poster|folder|movie|.*-cover|cover)\\..{2,4}");
-  private static Pattern                             fanartPattern      = Pattern.compile("(?i)(.*-fanart|.*\\.fanart|fanart)[0-9]{0,2}\\..{2,4}");
-  private static Pattern                             bannerPattern      = Pattern.compile("(?i)(.*-banner|banner)\\..{2,4}");
-  private static Pattern                             thumbPattern       = Pattern.compile("(?i)(.*-thumb|thumb)[0-9]{0,2}\\..{2,4}");
-  private static Pattern                             seasonPattern      = Pattern.compile("(?i)season([0-9]{0,2}|-specials)-poster\\..{2,4}");
-  private static Pattern                             logoPattern        = Pattern.compile("(?i)(.*-logo|logo)\\..{2,4}");
-  private static Pattern                             clearlogoPattern   = Pattern.compile("(?i)(.*-clearlogo|clearlogo)\\..{2,4}");
+  private static Pattern                             fanartPattern        = Pattern.compile("(?i)(.*-fanart|.*\\.fanart|fanart)[0-9]{0,2}\\..{2,4}");
+  private static Pattern                             bannerPattern        = Pattern.compile("(?i)(.*-banner|banner)\\..{2,4}");
+  private static Pattern                             thumbPattern         = Pattern.compile("(?i)(.*-thumb|thumb)[0-9]{0,2}\\..{2,4}");
+  private static Pattern                             seasonPosterPattern1 = Pattern.compile("(?i)season([0-9]{0,2}|-specials)-poster\\..{2,4}");
+  private static Pattern                             seasonPosterPattern2 = Pattern.compile("(?i)season[0-9]{0,2}\\..{2,4}");
+  private static Pattern                             logoPattern          = Pattern.compile("(?i)(.*-logo|logo)\\..{2,4}");
+  private static Pattern                             clearlogoPattern     = Pattern.compile("(?i)(.*-clearlogo|clearlogo)\\..{2,4}");
   // be careful: disc.avi would be valid!
-  private static Pattern                             discartPattern     = Pattern
+  private static Pattern                             discartPattern       = Pattern
       .compile("(?i)(.*-discart|discart|.*-disc|disc)\\.(jpg|jpeg|png|tbn)");
-  private static Pattern                             clearartPattern    = Pattern.compile("(?i)(.*-clearart|clearart)\\..{2,4}");
+  private static Pattern                             clearartPattern      = Pattern.compile("(?i)(.*-clearart|clearart)\\..{2,4}");
 
-  public static final String                         VIDEO_FORMAT_480P  = "480p";
-  public static final String                         VIDEO_FORMAT_576P  = "576p";
-  public static final String                         VIDEO_FORMAT_540P  = "540p";
-  public static final String                         VIDEO_FORMAT_720P  = "720p";
-  public static final String                         VIDEO_FORMAT_1080P = "1080p";
-  public static final String                         VIDEO_FORMAT_4K    = "4k";
-  public static final String                         VIDEO_FORMAT_8K    = "8k";
+  public static final String                         VIDEO_FORMAT_480P    = "480p";
+  public static final String                         VIDEO_FORMAT_540P    = "540p";
+  public static final String                         VIDEO_FORMAT_576P    = "576p";
+  public static final String                         VIDEO_FORMAT_720P    = "720p";
+  public static final String                         VIDEO_FORMAT_1080P   = "1080p";
+  public static final String                         VIDEO_FORMAT_4K      = "4k";
+  public static final String                         VIDEO_FORMAT_8K      = "8k";
 
   // meta formats
-  public static final String                         VIDEO_FORMAT_SD    = "SD";
-  public static final String                         VIDEO_FORMAT_HD    = "HD";
+  public static final String                         VIDEO_FORMAT_SD      = "SD";
+  public static final String                         VIDEO_FORMAT_HD      = "HD";
 
   // 3D / side-by-side / top-and-bottom / H=half - http://wiki.xbmc.org/index.php?title=3D#Video_filenames_flags
-  public static final String                         VIDEO_3D           = "3D";
-  public static final String                         VIDEO_3D_SBS       = "3D SBS";
-  public static final String                         VIDEO_3D_TAB       = "3D TAB";
-  public static final String                         VIDEO_3D_HSBS      = "3D HSBS";
-  public static final String                         VIDEO_3D_HTAB      = "3D HTAB";
+  public static final String                         VIDEO_3D             = "3D";
+  public static final String                         VIDEO_3D_SBS         = "3D SBS";
+  public static final String                         VIDEO_3D_TAB         = "3D TAB";
+  public static final String                         VIDEO_3D_HSBS        = "3D HSBS";
+  public static final String                         VIDEO_3D_HTAB        = "3D HTAB";
 
   @JsonProperty
-  private MediaFileType                              type               = MediaFileType.UNKNOWN;
+  private MediaFileType                              type                 = MediaFileType.UNKNOWN;
   @JsonProperty
-  private String                                     path               = "";
+  private String                                     path                 = "";
   @JsonProperty
-  private String                                     filename           = "";
+  private String                                     filename             = "";
   @JsonProperty
-  private long                                       filesize           = 0;
+  private long                                       filesize             = 0;
   @JsonProperty
-  private long                                       filedate           = 0;
+  private long                                       filedate             = 0;
   @JsonProperty
-  private String                                     videoCodec         = "";
+  private String                                     videoCodec           = "";
   @JsonProperty
-  private String                                     containerFormat    = "";
+  private String                                     containerFormat      = "";
   @JsonProperty
-  private String                                     exactVideoFormat   = "";
+  private String                                     exactVideoFormat     = "";
   @JsonProperty
-  private String                                     video3DFormat      = "";
+  private String                                     video3DFormat        = "";
   @JsonProperty
-  private int                                        videoWidth         = 0;
+  private int                                        videoWidth           = 0;
   @JsonProperty
-  private int                                        videoHeight        = 0;
+  private int                                        videoHeight          = 0;
   @JsonProperty
-  private int                                        overallBitRate     = 0;
+  private int                                        overallBitRate       = 0;
   @JsonProperty
-  private int                                        durationInSecs     = 0;
+  private int                                        bitDepth             = 0;
   @JsonProperty
-  private int                                        stacking           = 0;
+  private int                                        durationInSecs       = 0;
   @JsonProperty
-  private String                                     stackingMarker     = "";
+  private int                                        stacking             = 0;
+  @JsonProperty
+  private String                                     stackingMarker       = "";
 
   @JsonProperty
-  private List<MediaFileAudioStream>                 audioStreams       = new CopyOnWriteArrayList<>();
+  private List<MediaFileAudioStream>                 audioStreams         = new CopyOnWriteArrayList<>();
   @JsonProperty
-  private List<MediaFileSubtitle>                    subtitles          = new CopyOnWriteArrayList<>();
+  private List<MediaFileSubtitle>                    subtitles            = new CopyOnWriteArrayList<>();
 
   private MediaInfo                                  mediaInfo;
-  private Map<StreamKind, List<Map<String, String>>> miSnapshot         = null;
-  private Path                                       file               = null;
-  private boolean                                    isISO              = false;
-  private boolean                                    isAnimatedGraphic  = false;
+  private Map<StreamKind, List<Map<String, String>>> miSnapshot           = null;
+  private Path                                       file                 = null;
+  private boolean                                    isISO                = false;
+  private boolean                                    isAnimatedGraphic    = false;
 
   /**
    * "clones" a new media file.
@@ -170,6 +173,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     this.videoHeight = clone.videoHeight;
     this.videoWidth = clone.videoWidth;
     this.overallBitRate = clone.overallBitRate;
+    this.bitDepth = clone.bitDepth;
     this.durationInSecs = clone.durationInSecs;
     this.stacking = clone.stacking;
     this.stackingMarker = clone.stackingMarker;
@@ -260,8 +264,8 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
       // not found in name, try to parse from idx
       BufferedReader br;
       try {
-        File idx = new File(this.path, this.filename.replaceFirst("sub$", "idx"));
-        br = new BufferedReader(new FileReader(idx));
+        Path idx = Paths.get(this.path, this.filename.replaceFirst("sub$", "idx"));
+        br = new BufferedReader(new FileReader(idx.toFile()));
         String line;
         while ((line = br.readLine()) != null) {
           String lang = "";
@@ -372,8 +376,13 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
       return MediaFileType.GRAPHIC;
     }
 
-    // *season(XX|-specials)-poster.*
-    matcher = seasonPattern.matcher(name);
+    // season(XX|-specials)-poster.*
+    matcher = seasonPosterPattern1.matcher(name);
+    if (matcher.matches()) {
+      return MediaFileType.SEASON_POSTER;
+    }
+    // seasonXX.*
+    matcher = seasonPosterPattern2.matcher(name);
     if (matcher.matches()) {
       return MediaFileType.SEASON_POSTER;
     }
@@ -1147,6 +1156,36 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   }
 
   /**
+   * returns the overall bit depth for this file.
+   * 
+   * @return 8 / 10 bit
+   */
+  public int getBitDepth() {
+    return bitDepth;
+  }
+
+  /**
+   * sets the overall bit depth for this file (should be 8 or 10).
+   * 
+   * @param newValue
+   *          the new overall bit depth
+   */
+  public void setBitDepth(int newValue) {
+    int oldValue = this.bitDepth;
+    this.bitDepth = newValue;
+    firePropertyChange("bitDepth", oldValue, newValue);
+  }
+
+  /**
+   * Gets the bite depth as string
+   * 
+   * @return 8 bit / 10 bit
+   */
+  public String getBitDepthString() {
+    return this.bitDepth + " bit";
+  }
+
+  /**
    * returns the duration / runtime in seconds.
    * 
    * @return the duration
@@ -1563,6 +1602,12 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
         if (StringUtils.containsIgnoreCase(videoCodec, "Microsoft")) {
           videoCodec = getMediaInfo(StreamKind.Video, 0, "Format");
         }
+        try {
+          String bd = getMediaInfo(StreamKind.Video, 0, "BitDepth");
+          setBitDepth(Integer.parseInt(bd));
+        }
+        catch (Exception ignored) {
+        }
 
         // *****************
         // get audio streams
@@ -1719,6 +1764,12 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
         }
         catch (Exception e) {
         }
+        try {
+          String bd = getMediaInfo(StreamKind.Audio, 0, "BitDepth");
+          setBitDepth(Integer.parseInt(bd));
+        }
+        catch (Exception ignored) {
+        }
         String language = getMediaInfo(StreamKind.Audio, 0, "Language/String", "Language");
         if (language.isEmpty()) {
           // try to parse from filename
@@ -1749,6 +1800,12 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
         width = getMediaInfo(StreamKind.Image, 0, "Width");
         videoCodec = getMediaInfo(StreamKind.Image, 0, "CodecID/Hint", "Format");
         // System.out.println(height + "-" + width + "-" + videoCodec);
+        try {
+          String bd = getMediaInfo(StreamKind.Image, 0, "BitDepth");
+          setBitDepth(Integer.parseInt(bd));
+        }
+        catch (Exception ignored) {
+        }
         checkForAnimation();
         break;
 

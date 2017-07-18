@@ -1671,7 +1671,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
           String channels = getMediaInfo(StreamKind.Audio, i, "Channel(s)_Original", "Channel(s)");
           stream.setChannels(StringUtils.isEmpty(channels) ? "" : channels);
           try {
-            String br = getMediaInfo(StreamKind.Audio, i, "BitRate");
+            String br = getMediaInfo(StreamKind.Audio, i, "BitRate", "BitRate_Maximum");
             stream.setBitrate(Integer.parseInt(br) / 1024);
           }
           catch (Exception ignored) {
@@ -1759,7 +1759,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
         String channels = getMediaInfo(StreamKind.Audio, 0, "Channel(s)");
         stream.setChannels(StringUtils.isEmpty(channels) ? "" : channels + "ch");
         try {
-          String br = getMediaInfo(StreamKind.Audio, 0, "BitRate");
+          String br = getMediaInfo(StreamKind.Audio, 0, "BitRate", "BitRate_Maximum");
           stream.setBitrate(Integer.parseInt(br) / 1024);
         }
         catch (Exception e) {

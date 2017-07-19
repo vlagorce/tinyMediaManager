@@ -5,6 +5,7 @@ Version 2.9.4
 + added new templates
 + added more icons for high res audio & video streams (Atmos, TrueHD, DTS:X, 4k)
 + added animated poster scraper
++ added UltraHD Blu Ray as media source
 x fixed handling for nested movie structures
 x fixed default value for copyArtwork exporting
 x fixed TV multi episode renaming #143

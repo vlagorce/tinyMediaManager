@@ -33,6 +33,7 @@ public enum MediaSource {
   DVD("DVD"), 
   HDDVD("HDDVD"), 
   BLURAY("Blu-ray"),
+  UHD_BLURAY("UHD Blu-ray"),
   // other sources
   HDRIP("HDRip"),
   CAM("Cam"),
@@ -50,6 +51,8 @@ public enum MediaSource {
   private static final String END_TOKEN     = "([ .\\-_/\\\\\\]\\)]|$)";
 
   // tokens taken from http://en.wikipedia.org/wiki/Pirated_movie_release_types
+  private static Pattern      uhdBlurayPattern = Pattern
+      .compile(START_TOKEN + "(uhd|ultrahd)[ .\\-]?(bluray|blueray|bdrip|brrip|dbrip|bd25|bd50|bdmv|blu\\-ray)" + END_TOKEN);
   private static Pattern      blurayPattern = Pattern
       .compile(START_TOKEN + "(bluray|blueray|bdrip|brrip|dbrip|bd25|bd50|bdmv|blu\\-ray)" + END_TOKEN);
   private static Pattern      hdripPattern  = Pattern.compile(START_TOKEN + "(hdrip)" + END_TOKEN);
@@ -88,8 +91,11 @@ public enum MediaSource {
     String ext = FilenameUtils.getExtension(fn);
     // http://wiki.xbmc.org/index.php?title=Media_flags#Media_source
 
+    if (uhdBlurayPattern.matcher(fn).find()) {
+      return MediaSource.UHD_BLURAY;
+    }
     if (blurayPattern.matcher(fn).find()) {
-      return MediaSource.BLURAY; // yes!
+      return MediaSource.BLURAY;
     }
     else if (hdripPattern.matcher(fn).find()) {
       return MediaSource.HDRIP;

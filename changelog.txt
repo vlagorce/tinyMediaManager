@@ -1,10 +1,15 @@
 Version 2.9.4
 =======================
+HIGHLIGHTS:
++ Kodi XML scrapers for TV shows! (Donator only)
++ MediaInfo changes: if you have high-res, 6+ channel, 4k files, 
+  it is recommended to do a "mediainfo reload" of all movies, to get the correct icons.  
++ Animated poster scraping (not always visible inside TMM, but on filesystem)
+
 + export movies/tv shows via command line #116
 + fixed various templates to use correct graphics
 + added new templates
 + added more icons for high res audio & video streams (Atmos, TrueHD, DTS:X, 4k)
-+ added animated poster scraper
 + added UltraHD Blu Ray as media source
 x fixed handling for nested movie structures
 x fixed default value for copyArtwork exporting

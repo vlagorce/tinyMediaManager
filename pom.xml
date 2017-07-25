@@ -83,7 +83,7 @@
         <dependency>
             <groupId>org.tinymediamanager.plugins</groupId>
             <artifactId>scraper-imdb</artifactId>
-            <version>1.8</version>
+            <version>1.9-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -107,7 +107,7 @@
         <dependency>
             <groupId>org.tinymediamanager.plugins</groupId>
             <artifactId>scraper-opensubtitles</artifactId>
-            <version>1.0</version>
+            <version>1.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -127,7 +127,7 @@
         <dependency>
             <groupId>org.tinymediamanager.plugins</groupId>
             <artifactId>scraper-tmdb</artifactId>
-            <version>1.9</version>
+            <version>1.10-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

@@ -204,7 +204,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
         btnSearch.addActionListener(new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent arg0) {
-            searchTvShow(textFieldSearchString.getText());
+            searchTvShow(textFieldSearchString.getText(), null);
           }
         });
         getRootPane().setDefaultButton(btnSearch);
@@ -220,7 +220,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
         cbLanguage.addActionListener(new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            searchTvShow(textFieldSearchString.getText());
+            searchTvShow(textFieldSearchString.getText(), null);
           }
         });
         panelSearchField.add(cbLanguage, "4, 3, fill, default");
@@ -368,7 +368,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
       table.getColumnModel().getColumn(0).setHeaderValue(BUNDLE.getString("chooser.searchresult")); //$NON-NLS-1$
       lblPath.setText(tvShowToScrape.getPath());
       textFieldSearchString.setText(tvShowToScrape.getTitle());
-      searchTvShow(textFieldSearchString.getText());
+      searchTvShow(textFieldSearchString.getText(), tvShowToScrape);
     }
 
   }
@@ -477,8 +477,8 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
 
   }
 
-  private void searchTvShow(String searchTerm) {
-    SearchTask task = new SearchTask(searchTerm);
+  private void searchTvShow(String searchTerm, TvShow show) {
+    SearchTask task = new SearchTask(searchTerm, show);
     task.execute();
   }
 
@@ -506,17 +506,19 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
 
   private class SearchTask extends SwingWorker<Void, Void> {
     private String         searchTerm;
+    private TvShow         show;
     private MediaLanguages language;
 
-    public SearchTask(String searchTerm) {
+    public SearchTask(String searchTerm, TvShow show) {
       this.searchTerm = searchTerm;
+      this.show = show;
       this.language = (MediaLanguages) cbLanguage.getSelectedItem();
     }
 
     @Override
     public Void doInBackground() {
       startProgressBar(BUNDLE.getString("chooser.searchingfor") + " " + searchTerm); //$NON-NLS-1$
-      List<MediaSearchResult> searchResult = tvShowList.searchTvShow(searchTerm, mediaScraper, language);
+      List<MediaSearchResult> searchResult = tvShowList.searchTvShow(searchTerm, show, mediaScraper, language);
       tvShowsFound.clear();
       if (searchResult.size() == 0) {
         // display empty result
@@ -620,7 +622,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
       mediaScraper = (MediaScraper) cbScraper.getSelectedItem();
-      searchTvShow(textFieldSearchString.getText());
+      searchTvShow(textFieldSearchString.getText(), tvShowToScrape);
     }
   }
 }

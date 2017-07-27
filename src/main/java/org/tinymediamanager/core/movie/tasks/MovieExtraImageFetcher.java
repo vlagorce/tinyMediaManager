@@ -121,6 +121,8 @@ public class MovieExtraImageFetcher implements Runnable {
       filename += "-";
     }
 
+    FileOutputStream outputStream = null;
+    InputStream is = null;
     try {
       String oldFilename = movie.getArtworkFilename(type);
       // we are lucky and have chosen our enums wisely - except the discart :(
@@ -138,8 +140,8 @@ public class MovieExtraImageFetcher implements Runnable {
       // fetch and store images
       Url url1 = new Url(artworkUrl);
       Path tempFile = movie.getPathNIO().resolve(filename + ".part");
-      FileOutputStream outputStream = new FileOutputStream(tempFile.toFile());
-      InputStream is = url1.getInputStream();
+      outputStream = new FileOutputStream(tempFile.toFile());
+      is = url1.getInputStream();
       IOUtils.copy(is, outputStream);
       outputStream.flush();
       try {
@@ -150,8 +152,8 @@ public class MovieExtraImageFetcher implements Runnable {
       catch (Exception e) {
         // empty here -> just not let the thread crash
       }
-      outputStream.close();
-      is.close();
+      IOUtils.closeQuietly(is);
+      IOUtils.closeQuietly(outputStream);
 
       // has tmm been shut down?
       if (Thread.interrupted()) {
@@ -190,6 +192,8 @@ public class MovieExtraImageFetcher implements Runnable {
       else {
         LOGGER.error("fetch image: " + e.getMessage());
       }
+      IOUtils.closeQuietly(is);
+      IOUtils.closeQuietly(outputStream);
       // remove temp file
       Path tempFile = movie.getPathNIO().resolve(filename + ".part");
       if (Files.exists(tempFile)) {
@@ -206,6 +210,8 @@ public class MovieExtraImageFetcher implements Runnable {
       return;
     }
 
+    FileOutputStream outputStream = null;
+    InputStream is = null;
     try {
       Path folder = movie.getPathNIO().resolve("extrafanart");
       if (Files.isDirectory(folder)) {
@@ -220,8 +226,8 @@ public class MovieExtraImageFetcher implements Runnable {
         String providedFiletype = FilenameUtils.getExtension(urlAsString);
         Url url = new Url(urlAsString);
         Path file = folder.resolve("fanart" + (i + 1) + "." + providedFiletype);
-        FileOutputStream outputStream = new FileOutputStream(file.toFile());
-        InputStream is = url.getInputStream();
+        outputStream = new FileOutputStream(file.toFile());
+        is = url.getInputStream();
         IOUtils.copy(is, outputStream);
         outputStream.flush();
         try {
@@ -232,9 +238,9 @@ public class MovieExtraImageFetcher implements Runnable {
         catch (Exception e) {
           // empty here -> just not let the thread crash
         }
-        outputStream.close();
+        IOUtils.closeQuietly(is);
+        IOUtils.closeQuietly(outputStream);
 
-        is.close();
         MediaFile mf = new MediaFile(file, MediaFileType.EXTRAFANART);
         mf.gatherMediaInformation();
         movie.addToMediaFiles(mf);
@@ -242,9 +248,13 @@ public class MovieExtraImageFetcher implements Runnable {
     }
     catch (InterruptedException e) {
       LOGGER.warn("interrupted download extrafanarts");
+      IOUtils.closeQuietly(is);
+      IOUtils.closeQuietly(outputStream);
     }
     catch (IOException e) {
       LOGGER.warn("download extrafanarts", e);
+      IOUtils.closeQuietly(is);
+      IOUtils.closeQuietly(outputStream);
     }
   }
 
@@ -256,6 +266,8 @@ public class MovieExtraImageFetcher implements Runnable {
       return;
     }
 
+    FileOutputStream outputStream = null;
+    InputStream is = null;
     try {
       Path folder = movie.getPathNIO().resolve("extrathumbs");
       if (Files.isDirectory(folder)) {
@@ -269,8 +281,6 @@ public class MovieExtraImageFetcher implements Runnable {
         String url = thumbs.get(i);
         String providedFiletype = FilenameUtils.getExtension(url);
 
-        FileOutputStream outputStream = null;
-        InputStream is = null;
         Path file = null;
         if (MovieModuleManager.MOVIE_SETTINGS.isImageExtraThumbsResize() && MovieModuleManager.MOVIE_SETTINGS.getImageExtraThumbsSize() > 0) {
           file = folder.resolve("thumb" + (i + 1) + ".jpg");
@@ -298,8 +308,8 @@ public class MovieExtraImageFetcher implements Runnable {
         catch (Exception e) {
           // empty here -> just not let the thread crash
         }
-        outputStream.close();
-        is.close();
+        IOUtils.closeQuietly(is);
+        IOUtils.closeQuietly(outputStream);
 
         MediaFile mf = new MediaFile(file, MediaFileType.EXTRATHUMB);
         mf.gatherMediaInformation();
@@ -308,9 +318,13 @@ public class MovieExtraImageFetcher implements Runnable {
     }
     catch (IOException e) {
       LOGGER.warn("download extrathumbs", e);
+      IOUtils.closeQuietly(is);
+      IOUtils.closeQuietly(outputStream);
     }
     catch (Exception e) {
       LOGGER.error(e.getMessage());
+      IOUtils.closeQuietly(is);
+      IOUtils.closeQuietly(outputStream);
     }
   }
 }

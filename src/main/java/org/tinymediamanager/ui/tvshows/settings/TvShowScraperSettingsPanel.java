@@ -48,18 +48,20 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.imgscalr.Scalr;
 import org.jdesktop.beansbinding.AutoBinding;
+import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
-import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
+import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.Settings;
@@ -174,7 +176,24 @@ public class TvShowScraperSettingsPanel extends ScrollablePanel {
     scrollPaneScraper = new JScrollPane();
     panelTvShowScrapers.add(scrollPaneScraper, "1, 2, 3, 1, fill, fill");
 
-    tableScraper = new JTable();
+    tableScraper = new JTable() {
+      private static final long serialVersionUID = 1L;
+
+      @Override
+      public java.awt.Component prepareRenderer(TableCellRenderer renderer, int row, int col) {
+        java.awt.Component comp = super.prepareRenderer(renderer, row, col);
+        String value = getModel().getValueAt(row, 2).toString();
+        if (!Globals.isDonator() && value.startsWith("Kodi")) { // FIXME: use scraper.isEnabled() somehow?
+          comp.setBackground(Color.lightGray);
+          comp.setEnabled(false);
+        }
+        else {
+          comp.setBackground(Color.white);
+          comp.setEnabled(true);
+        }
+        return comp;
+      }
+    };
     tableScraper.setRowHeight(29);
     scrollPaneScraper.setViewportView(tableScraper);
 
@@ -220,6 +239,7 @@ public class TvShowScraperSettingsPanel extends ScrollablePanel {
 
     panelArtworkScrapers = new JPanel();
     panelArtworkScrapers.setBorder(new TitledBorder(null, BUNDLE.getString("Settings.images"), TitledBorder.LEADING, TitledBorder.TOP, null, null));//$NON-NLS-1$
+
     add(panelArtworkScrapers, "2, 4, fill, fill");
     panelArtworkScrapers.setLayout(new FormLayout(
         new ColumnSpec[] { FormSpecs.RELATED_GAP_COLSPEC, FormSpecs.DEFAULT_COLSPEC, FormSpecs.RELATED_GAP_COLSPEC, ColumnSpec.decode("default:grow"),
@@ -278,6 +298,7 @@ public class TvShowScraperSettingsPanel extends ScrollablePanel {
     panelScraperMetadataContainer = new JPanel();
     panelScraperMetadataContainer.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"),
         BUNDLE.getString("scraper.metadata.defaults"), TitledBorder.LEADING, TitledBorder.TOP, null, new Color(51, 51, 51))); //$NON-NLS-1$
+
     add(panelScraperMetadataContainer, "2, 6, fill, top");
     panelScraperMetadataContainer.setLayout(new FormLayout(new ColumnSpec[] { FormFactory.RELATED_GAP_COLSPEC, ColumnSpec.decode("default:grow"), },
         new RowSpec[] { FormFactory.DEFAULT_ROWSPEC, FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC, }));
@@ -449,8 +470,15 @@ public class TvShowScraperSettingsPanel extends ScrollablePanel {
       int height = (int) (fm.getHeight() * 2f);
       int width = original.getIconWidth() / original.getIconHeight() * height;
 
-      BufferedImage scaledImage = Scalr.resize(ImageCache.createImage(original.getImage()), Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC, width, height,
-          Scalr.OP_ANTIALIAS);
+      BufferedImage scaledImage;
+      if (!scraper.isEnabled()) {
+        scaledImage = Scalr.resize(ImageCache.createImage(original.getImage()), Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC, width, height,
+            Scalr.OP_GRAYSCALE);
+      }
+      else {
+        scaledImage = Scalr.resize(ImageCache.createImage(original.getImage()), Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC, width, height,
+            Scalr.OP_ANTIALIAS);
+      }
       return new ImageIcon(scaledImage);
     }
 
@@ -488,9 +516,11 @@ public class TvShowScraperSettingsPanel extends ScrollablePanel {
     }
 
     public void setDefaultScraper(Boolean newValue) {
-      Boolean oldValue = this.defaultScraper;
-      this.defaultScraper = newValue;
-      firePropertyChange("defaultScraper", oldValue, newValue);
+      if (scraper.isEnabled()) {
+        Boolean oldValue = this.defaultScraper;
+        this.defaultScraper = newValue;
+        firePropertyChange("defaultScraper", oldValue, newValue);
+      }
     }
 
     public IMediaProvider getMediaProvider() {

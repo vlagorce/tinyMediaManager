@@ -2,20 +2,37 @@ package org.tinymediamanager;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
 
 import org.junit.Assert;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.entities.MediaFileAudioStream;
+import org.tinymediamanager.core.entities.MediaFileSubtitle;
+import org.tinymediamanager.core.movie.MovieEdition;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.core.movie.entities.MovieActor;
+import org.tinymediamanager.core.movie.entities.MovieProducer;
+import org.tinymediamanager.core.movie.entities.MovieSet;
+import org.tinymediamanager.core.movie.entities.MovieTrailer;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.scraper.entities.Certification;
+import org.tinymediamanager.scraper.entities.MediaGenres;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 
 public class BasicTest {
+
+  private static final String LOREM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent vel lacus libero. Ut vel lacus erat. Maecenas maximus vestibulum ante at efficitur. Sed id ex eget purus commodo feugiat. Suspendisse ultricies felis sed interdum luctus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nunc et scelerisque nibh. Donec maximus nunc nunc, non commodo nulla rhoncus id. Curabitur pharetra maximus tellus non porta. Ut vehicula elit nec ante elementum, ut semper ligula consectetur.";
 
   // own method to get some logging ;)
   public static void assertEqual(Object expected, Object actual) {
@@ -61,24 +78,166 @@ public class BasicTest {
   }
 
   public static void createFakeMovie(String title) {
-    Movie m = new Movie();
-    m.setTitle(title);
-    MovieList.getInstance().addMovie(m);
-    m.saveToDb();
-    System.out.println("Created movie " + m.getDbId());
+    Movie movie = new Movie();
+
+    movie.setTitle(title);
+    movie.setPath("/media/movies/" + title);
+    movie.setOriginalTitle("Original " + title);
+    movie.setSortTitle(title);
+    movie.setRating(7.2f);
+    movie.setYear("" + 1992);
+    movie.setTop250(199);
+    movie.setVotes(5987);
+    movie.setPlot(LOREM);
+    movie.setTagline("Wish granted");
+    movie.setRuntime(90);
+    // movie.setArtworkUrl("http://poster", MediaFileType.POSTER);
+    // movie.setArtworkUrl("http://fanart", MediaFileType.FANART);
+    movie.setImdbId("tt0103639");
+    movie.setTmdbId(812);
+    movie.setId("trakt", 655);
+    movie.setProductionCompany("Walt Disney");
+    movie.setCountry("US");
+    movie.setCertification(Certification.US_G);
+
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    try {
+      movie.setReleaseDate(sdf.parse("1992-11-25"));
+    }
+    catch (ParseException e) {
+      // ignore
+    }
+
+    MovieTrailer trailer = new MovieTrailer();
+    trailer.setUrl("https://trailer");
+    trailer.setInNfo(true);
+    movie.addTrailer(trailer);
+
+    MovieSet movieSet = new MovieSet();
+    movieSet.setTitle(title + " Collection");
+    movieSet.setPlot(title + " plot");
+    movie.setMovieSet(movieSet);
+
+    // MF video
+    MediaFile mf = new MediaFile();
+    mf.setType(MediaFileType.VIDEO);
+    mf.setFilename(title + ".mkv");
+    mf.setVideoCodec("h264");
+    mf.setVideoHeight(720);
+    mf.setVideoWidth(1280);
+    mf.setDuration(3600);
+    mf.setOverallBitRate(3500);
+    mf.setVideo3DFormat(MediaFile.VIDEO_3D_SBS);
+
+    MediaFileAudioStream audio = new MediaFileAudioStream();
+    audio.setCodec("AC3");
+    audio.setLanguage("en");
+    audio.setChannels("6");
+    mf.setAudioStreams(Arrays.asList(audio));
+
+    MediaFileSubtitle sub = new MediaFileSubtitle();
+    sub.setLanguage("de");
+    mf.addSubtitle(sub);
+    movie.addToMediaFiles(mf);
+
+    // MF poster
+    mf = new MediaFile(Paths.get("target/test-classes/dummy-poster.jpg"));
+    movie.addToMediaFiles(mf);
+    // MF fanart
+    mf = new MediaFile(Paths.get("target/test-classes/dummy-fanart.jpg"));
+    movie.addToMediaFiles(mf);
+
+    movie.setWatched(true);
+    movie.setGenres(Arrays.asList(MediaGenres.ADVENTURE, MediaGenres.FAMILY));
+    movie.setWriter("Ted Elliott, Terry Rossio, John Jusker");
+    movie.setDirector("Ron Clements");
+    movie.addToTags("Disney");
+    movie.addToTags("Oriental");
+
+    movie.addActor(new MovieActor("Scott Weinger", "Aladdin 'Al' (voice)"));
+    movie.addActor(new MovieActor("Robin Williams", "Genie (voice)"));
+
+    movie.addProducer(new MovieProducer("Ron Clements", "Producer"));
+    movie.addProducer(new MovieProducer("Donald W. Ernst", "Producer"));
+
+    movie.setSpokenLanguages("en");
+    movie.setMediaSource(MediaSource.BLURAY);
+    movie.setEdition(MovieEdition.DIRECTORS_CUT);
+
+    MovieList.getInstance().addMovie(movie);
+    movie.saveToDb();
+    System.out.println("Created movie " + movie.getDbId());
   }
 
   public static void createFakeShow(String title) {
-    TvShow s = new TvShow();
-    s.setTitle(title);
-    TvShowEpisode ep = new TvShowEpisode();
-    ep.setTitle(title + "-EP");
-    ep.setSeason(1);
-    ep.setEpisode(2);
-    s.addEpisode(ep);
-    TvShowList.getInstance().addTvShow(s);
-    s.saveToDb();
-    System.out.println("Created show " + s.getDbId());
+    TvShow tvShow = new TvShow();
+
+    tvShow.setTitle(title);
+    tvShow.setPath("/media/tvshows/" + title);
+    tvShow.setYear("" + 1987);
+    tvShow.setRating(7.4f);
+    tvShow.setVotes(8);
+    tvShow.setCertification(Certification.US_TVPG);
+    tvShow.setGenres(Arrays.asList(MediaGenres.ACTION, MediaGenres.ADVENTURE, MediaGenres.DRAMA));
+    tvShow.setTvdbId("77585");
+    tvShow.setFirstAired("1987-04-12");
+    tvShow.setProductionCompany("FOX (US)");
+    tvShow.setPlot(LOREM);
+
+    MediaFile mf = new MediaFile();
+    // show MF poster
+    mf = new MediaFile(Paths.get("target/test-classes/dummy-poster.jpg"));
+    tvShow.addToMediaFiles(mf);
+    // show MF fanart
+    mf = new MediaFile(Paths.get("target/test-classes/dummy-fanart.jpg"));
+    tvShow.addToMediaFiles(mf);
+
+    // ========= EPISODE start =========
+    TvShowEpisode episode = new TvShowEpisode();
+    episode.setTvShow(tvShow);
+    episode.setTitle(title + "-EP");
+    episode.setSeason(1);
+    episode.setEpisode(2);
+    episode.setDvdSeason(3);
+    episode.setDvdEpisode(4);
+    episode.setTitle("Don't Pet the Teacher");
+    episode.setYear("" + 1987);
+    episode.setFirstAired("1987-04-26");
+    episode.setMediaSource(MediaSource.BLURAY);
+    episode.setPlot(LOREM);
+
+    mf = new MediaFile();
+    mf.setType(MediaFileType.VIDEO);
+    mf.setFilename(title + ".mkv");
+    mf.setVideoCodec("h264");
+    mf.setVideoHeight(720);
+    mf.setVideoWidth(1280);
+    mf.setDuration(3600);
+    mf.setOverallBitRate(3500);
+    mf.setVideo3DFormat(MediaFile.VIDEO_3D_SBS);
+
+    MediaFileAudioStream audio = new MediaFileAudioStream();
+    audio.setCodec("AC3");
+    audio.setLanguage("en");
+    audio.setChannels("6");
+    mf.setAudioStreams(Arrays.asList(audio));
+
+    MediaFileSubtitle sub = new MediaFileSubtitle();
+    sub.setLanguage("de");
+    mf.addSubtitle(sub);
+
+    episode.addToMediaFiles(mf);
+
+    // EP MF poster
+    mf = new MediaFile(Paths.get("target/test-classes/dummy-poster.jpg"), MediaFileType.THUMB);
+    episode.addToMediaFiles(mf);
+
+    tvShow.addEpisode(episode);
+    // ========= EPISODE end =========
+
+    TvShowList.getInstance().addTvShow(tvShow);
+    tvShow.saveToDb();
+    System.out.println("Created show " + tvShow.getDbId());
   }
 
 }

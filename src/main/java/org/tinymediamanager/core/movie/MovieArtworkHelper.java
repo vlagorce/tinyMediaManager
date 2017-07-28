@@ -334,14 +334,23 @@ public class MovieArtworkHelper {
       boolean firstImage = false;
       String filename = getFanartFilename(name, movie);
 
-      // only store .png as png and .jpg as jpg; .tbn will be stored as .jpg
-      String generatedFiletype = FilenameUtils.getExtension(filename);
-      String providedFiletype = FilenameUtils.getExtension(fanartUrl);
+      // only store .png as png and .jpg/.jpeg as jpg; .tbn will be stored as .jpg
+      String generatedFiletype = FilenameUtils.getExtension(filename).replaceAll("jpeg", "jpg");
+      String providedFiletype = FilenameUtils.getExtension(fanartUrl).replaceAll("jpeg", "jpg");
       if ("tbn".equals(providedFiletype)) {
         providedFiletype = "jpg";
       }
-      if (!generatedFiletype.equals(providedFiletype)) {
-        continue;
+
+      // HACK for animated posters!
+      // we only know from url/host if animated!
+      if (generatedFiletype.equals("jpg") && providedFiletype.equals("gif") && fanartUrl.startsWith("http://consiliumb.com/animatedgifs")) {
+        // set back to GIF
+        filename = filename.replaceAll("jpg$", "gif");
+      }
+      else {
+        if (!generatedFiletype.equals(providedFiletype)) {
+          continue;
+        }
       }
 
       if (StringUtils.isBlank(fanartUrl) || StringUtils.isBlank(filename)) {
@@ -416,11 +425,23 @@ public class MovieArtworkHelper {
       boolean firstImage = false;
       String filename = getPosterFilename(name, movie);
 
-      // only store .png as png and .jpg as jpg
-      String generatedFiletype = FilenameUtils.getExtension(filename);
-      String providedFiletype = FilenameUtils.getExtension(posterUrl);
-      if (!generatedFiletype.equals(providedFiletype)) {
-        continue;
+      // only store .png as png and .jpg/.jpeg as jpg
+      String generatedFiletype = FilenameUtils.getExtension(filename).replaceAll("jpeg", "jpg");
+      String providedFiletype = FilenameUtils.getExtension(posterUrl).replaceAll("jpeg", "jpg");
+      if ("tbn".equals(providedFiletype)) {
+        providedFiletype = "jpg";
+      }
+
+      // HACK for animated posters!
+      // we only know from url/host if animated!
+      if (generatedFiletype.equals("jpg") && providedFiletype.equals("gif") && posterUrl.startsWith("http://consiliumb.com/animatedgifs")) {
+        // set back to GIF
+        filename = filename.replaceAll("jpg$", "gif");
+      }
+      else {
+        if (!generatedFiletype.equals(providedFiletype)) {
+          continue;
+        }
       }
 
       if (StringUtils.isBlank(posterUrl) || StringUtils.isBlank(filename)) {

@@ -64,6 +64,9 @@ uresource = templates/ListExampleCsv.jar
 uresource = templates/ListExampleHtml.jar
 uresource = templates/ListExampleXml.jar
 uresource = templates/jQueryliscious.jar
+uresource = templates/DeadSix27HTMLGenerator.jar
+uresource = templates/DeadSix27HTMLGeneratorTV.jar
+uresource = templates/MobileMovieSearch.jar
 uresource = templates/SimpleConfluence.jar
 uresource = templates/TvShowDetailExampleXml.jar
 

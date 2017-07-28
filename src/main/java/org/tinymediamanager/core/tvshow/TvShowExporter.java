@@ -17,7 +17,9 @@ package org.tinymediamanager.core.tvshow;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
 import java.nio.file.DirectoryStream;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -87,7 +89,7 @@ public class TvShowExporter extends MediaEntityExporter {
     // prepare listfile
     Path listExportFile = null;
     if (fileExtension.equalsIgnoreCase("html")) {
-      listExportFile = exportDir.resolve("index.html");
+      listExportFile = exportDir.resolve("tvshows.html");
     }
     if (fileExtension.equalsIgnoreCase("xml")) {
       listExportFile = exportDir.resolve("tvshows.xml");
@@ -114,7 +116,7 @@ public class TvShowExporter extends MediaEntityExporter {
     root.put("tvShows", new ArrayList<>(tvShowsToExport));
     String output = engine.transform(listTemplate, root);
     Utils.writeStringToFile(listExportFile, output);
-    LOGGER.info("movie list generated: " + listExportFile);
+    LOGGER.info("TvShow list generated: " + listExportFile);
 
     if (StringUtils.isNotBlank(detailTemplate)) {
       for (MediaEntity me : tvShowsToExport) {
@@ -125,7 +127,12 @@ public class TvShowExporter extends MediaEntityExporter {
         // if (Files.isDirectory(showDir)) {
         // Utils.deleteDirectoryRecursive(showDir);
         // }
-        Files.createDirectory(showDir);
+        try {
+          Files.createDirectory(showDir);
+        }
+        catch (FileAlreadyExistsException e) {
+          LOGGER.debug("Folder already exists...");
+        }
 
         Path detailsExportFile = showDir.resolve("tvshow." + fileExtension);
         root = new HashMap<>();
@@ -207,11 +214,63 @@ public class TvShowExporter extends MediaEntityExporter {
 
     @Override
     public String render(Object o, String pattern, Locale locale) {
+      Map<String, Object> parameters = new HashMap<String, Object>();
+      if (pattern != null) {
+        parameters = parseParameters(pattern);
+      }
+
       if (o instanceof TvShow) {
         TvShow show = (TvShow) o;
-        return TvShowRenamer.generateTvShowDir(show);
+        String filename = getFilename(show);
+        if (parameters.get("escape") == Boolean.TRUE) {
+          try {
+            filename = URLEncoder.encode(filename, "UTF-8").replace("+", "%20");
+          }
+          catch (Exception ignored) {
+          }
+        }
+        return filename;
       }
       return null;
+    }
+
+    /**
+     * parse the parameters out of the parameters string
+     *
+     * @param parameters
+     *          the parameters as string
+     * @return a map containing all parameters
+     */
+    private Map<String, Object> parseParameters(String parameters) {
+      Map<String, Object> parameterMap = new HashMap<>();
+
+      String[] details = parameters.split(",");
+      for (int x = 0; x < details.length; x++) {
+        String key = "";
+        String value = "";
+        try {
+          String[] d = details[x].split("=");
+          key = d[0].trim();
+          value = d[1].trim();
+        }
+        catch (Exception e) {
+        }
+
+        if (StringUtils.isAnyBlank(key, value)) {
+          continue;
+        }
+
+        switch (key.toLowerCase(Locale.ROOT)) {
+          case "escape":
+            parameterMap.put(key, Boolean.parseBoolean(value));
+            break;
+
+          default:
+            break;
+        }
+      }
+
+      return parameterMap;
     }
   }
 
@@ -246,14 +305,17 @@ public class TvShowExporter extends MediaEntityExporter {
     public String render(Object o, String pattern, Locale locale) {
       if (o instanceof TvShow || o instanceof TvShowEpisode) {
         MediaEntity entity = (MediaEntity) o;
-        Map<String, Object> parameters = new HashMap<String, Object>();
+        Map<String, Object> parameters = new HashMap<>();
         if (pattern != null) {
           parameters = parseParameters(pattern);
         }
 
         MediaFile mf = entity.getArtworkMap().get(parameters.get("type"));
         if (mf == null || !mf.isGraphic()) {
-          return null;
+          if (StringUtils.isNotBlank((String) parameters.get("default"))) {
+            return (String) parameters.get("default");
+          }
+          return ""; // pass an emtpy string to prevent tvShow.toString() gets triggered by jmte
         }
 
         String filename = getFilename(entity) + "-" + mf.getType();
@@ -289,12 +351,23 @@ public class TvShowExporter extends MediaEntityExporter {
         }
         catch (Exception e) {
           LOGGER.error("could not copy artwork file: ", e);
-          return "";
+          if (StringUtils.isNotBlank((String) parameters.get("default"))) {
+            return (String) parameters.get("default");
+          }
+          return ""; // pass an emtpy string to prevent tvShow.toString() gets triggered by jmte
+        }
+
+        if (parameters.get("escape") == Boolean.TRUE) {
+          try {
+            filename = URLEncoder.encode(filename, "UTF-8").replace("+", "%20");
+          }
+          catch (Exception ignored) {
+          }
         }
 
         return filename;
       }
-      return null;
+      return ""; // pass an emtpy string to prevent obj.toString() gets triggered by jmte
     }
 
     /**
@@ -336,7 +409,7 @@ public class TvShowExporter extends MediaEntityExporter {
             break;
 
           case "destination":
-            parameterMap.put("destination", value);
+            parameterMap.put(key, value);
             break;
 
           case "thumb":
@@ -349,6 +422,14 @@ public class TvShowExporter extends MediaEntityExporter {
             }
             catch (Exception e) {
             }
+            break;
+
+          case "escape":
+            parameterMap.put(key, Boolean.parseBoolean(value));
+            break;
+
+          case "default":
+            parameterMap.put(key, value);
             break;
 
           default:

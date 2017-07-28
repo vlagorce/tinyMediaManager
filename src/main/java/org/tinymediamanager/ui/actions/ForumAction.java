@@ -45,7 +45,7 @@ public class ForumAction extends AbstractAction {
 
   @Override
   public void actionPerformed(ActionEvent e) {
-    String url = StringEscapeUtils.unescapeHtml4("http://forum.xbmc.org/forumdisplay.php?fid=204");
+    String url = StringEscapeUtils.unescapeHtml4("http://forum.kodi.tv/forumdisplay.php?fid=204");
     try {
       TmmUIHelper.browseUrl(url);
     }

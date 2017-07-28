@@ -790,6 +790,7 @@ public class TvShowRenamer {
         }
         episodeParts += " " + episodePart;
       }
+      episodeParts = episodeParts.trim();
 
       // replace original pattern, with our combined
       if (!loopNumbers.isEmpty()) {

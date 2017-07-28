@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.file.DirectoryStream;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -87,7 +88,7 @@ public class MovieExporter extends MediaEntityExporter {
     // prepare listfile
     Path listExportFile = null;
     if (fileExtension.equalsIgnoreCase("html")) {
-      listExportFile = exportDir.resolve("index.html");
+      listExportFile = exportDir.resolve("movielist.html");
     }
     if (fileExtension.equalsIgnoreCase("xml")) {
       listExportFile = exportDir.resolve("movielist.xml");
@@ -118,7 +119,12 @@ public class MovieExporter extends MediaEntityExporter {
       // if (Files.isDirectory(detailsDir)) {
       // Utils.deleteDirectoryRecursive(detailsDir);
       // }
-      Files.createDirectory(detailsDir);
+      try {
+        Files.createDirectory(detailsDir);
+      }
+      catch (FileAlreadyExistsException e) {
+        LOGGER.debug("Folder already exists...");
+      }
 
       for (MediaEntity me : moviesToExport) {
         Movie movie = (Movie) me;
@@ -296,7 +302,10 @@ public class MovieExporter extends MediaEntityExporter {
 
         MediaFile mf = movie.getArtworkMap().get(parameters.get("type"));
         if (mf == null || !mf.isGraphic()) {
-          return null;
+          if (StringUtils.isNotBlank((String) parameters.get("default"))) {
+            return (String) parameters.get("default");
+          }
+          return ""; // pass an emtpy string to prevent movie.toString() gets triggered by jmte
         }
 
         String filename = getMovieFilename(movie) + "-" + mf.getType();
@@ -331,7 +340,10 @@ public class MovieExporter extends MediaEntityExporter {
         }
         catch (Exception e) {
           LOGGER.error("could not copy artwork file: ", e);
-          return "";
+          if (StringUtils.isNotBlank((String) parameters.get("default"))) {
+            return (String) parameters.get("default");
+          }
+          return ""; // pass an emtpy string to prevent movie.toString() gets triggered by jmte
         }
 
         if (parameters.get("escape") == Boolean.TRUE) {
@@ -344,7 +356,7 @@ public class MovieExporter extends MediaEntityExporter {
 
         return filename;
       }
-      return null;
+      return ""; // pass an emtpy string to prevent obj.toString() gets triggered by jmte
     }
 
     /**
@@ -386,7 +398,7 @@ public class MovieExporter extends MediaEntityExporter {
             break;
 
           case "destination":
-            parameterMap.put("destination", value);
+            parameterMap.put(key, value);
             break;
 
           case "thumb":
@@ -403,6 +415,10 @@ public class MovieExporter extends MediaEntityExporter {
 
           case "escape":
             parameterMap.put(key, Boolean.parseBoolean(value));
+            break;
+
+          case "default":
+            parameterMap.put(key, value);
             break;
 
           default:

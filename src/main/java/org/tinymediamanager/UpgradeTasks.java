@@ -23,11 +23,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -122,6 +124,13 @@ public class UpgradeTasks {
         catch (Exception ignored) {
         }
       }
+    }
+
+    // upgrade to v2.9.4
+    if (StrgUtils.compareVersion(v, "2.9.4") < 0) {
+      LOGGER.info("Performing upgrade tasks to version 2.9.4");
+      // activate new scraper
+      Settings.getInstance().getMovieSettings().addMovieArtworkScraper("animated");
     }
   }
 
@@ -530,6 +539,46 @@ public class UpgradeTasks {
             person.setEntityRoot(episode.getPathNIO());
           }
           episode.saveToDb();
+        }
+      }
+    }
+
+    // upgrade to v2.9.4
+    if (StrgUtils.compareVersion(v, "2.9.4") < 0) {
+      LOGGER.info("Performing database upgrade tasks to version 2.9.4");
+
+      // re-check MMD for nested movies
+      Set<Path> moviePaths = new HashSet<>(); // all movie paths (w/o dupes)
+      for (Movie movie : movieList.getMovies()) {
+        moviePaths.add(movie.getPathNIO());
+      }
+      for (Path path : moviePaths) {
+        LOGGER.trace("Checking: " + path);
+        List<Movie> movies = movieList.getMoviesByPath(path);
+        Path moviePath = movies.get(0).getPathNIO();
+        LOGGER.trace("Movies: " + movies.size() + " Path: " + moviePath);
+        for (Path path2 : moviePaths) {
+          if (moviePath.equals(path2)) {
+            continue; // skip ourself
+          }
+          if (path2.startsWith(moviePath)) {
+            // ka-ching - nested movie detected! Change movie(s) in path to MMD...
+            for (Movie mmdMovie : movies) {
+              if (!mmdMovie.isMultiMovieDir()) {
+                LOGGER.trace("Movie is now MMD: " + mmdMovie.getPathNIO());
+                mmdMovie.setMultiMovieDir(true);
+
+                // remove now all MFs not in this dir from movie
+                for (MediaFile mf : mmdMovie.getMediaFiles()) {
+                  if (!mf.getFileAsPath().getParent().equals(mmdMovie.getPathNIO())) {
+                    LOGGER.trace("  removing MF: " + mf.getFileAsPath());
+                    mmdMovie.removeFromMediaFiles(mf);
+                  }
+                }
+                mmdMovie.saveToDb();
+              }
+            }
+          }
         }
       }
     }

@@ -467,7 +467,7 @@ public class MovieList extends AbstractModelObject {
   public synchronized List<Movie> getMoviesByPath(Path path) {
     ArrayList<Movie> movies = new ArrayList<>();
     for (Movie movie : movieList) {
-      if (Paths.get(movie.getPath()).compareTo(path) == 0) {
+      if (movie.getPathNIO().compareTo(path) == 0) {
         movies.add(movie);
       }
     }

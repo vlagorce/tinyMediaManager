@@ -1815,16 +1815,41 @@ public class Movie extends MediaEntity {
     }
 
     // actor image files
-    if (MovieModuleManager.MOVIE_SETTINGS.isWriteActorImages()) {
-      for (MovieActor actor : actors) {
-        Path imagePath = actor.getStoragePath();
-        if (imagePath != null) {
-          filesToCache.add(imagePath);
+    // if (MovieModuleManager.MOVIE_SETTINGS.isWriteActorImages()) {
+    // for (MovieActor actor : actors) {
+    // Path imagePath = actor.getStoragePath();
+    // if (imagePath != null) {
+    // filesToCache.add(imagePath);
+    // }
+    // }
+    // }
+
+    // getting all scraped actors (= possible to cache)
+    // and having never ever downloaded any pic is quite slow.
+    // (Many invalid cache requests and exists() checks)
+    // Better get a listing of existent actor images directly!
+    filesToCache.addAll(listActorFiles());
+    // TODO: check against actors and trigger a download?
+
+    return filesToCache;
+  }
+
+  /**
+   * @return list of actor images on filesystem
+   */
+  private List<Path> listActorFiles() {
+    List<Path> fileNames = new ArrayList<>();
+    try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(getPathNIO().resolve(".actors"))) {
+      for (Path path : directoryStream) {
+        if (Utils.isRegularFile(path)) {
+          fileNames.add(path.toAbsolutePath());
         }
       }
     }
-
-    return filesToCache;
+    catch (IOException e) {
+      LOGGER.warn("Cannot get actors: " + getPathNIO().resolve(".actors"));
+    }
+    return fileNames;
   }
 
   public List<MediaFile> getMediaFilesContainingAudioStreams() {

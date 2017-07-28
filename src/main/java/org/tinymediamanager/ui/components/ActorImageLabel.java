@@ -16,7 +16,6 @@
 package org.tinymediamanager.ui.components;
 
 import java.awt.Graphics;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ResourceBundle;
 
@@ -126,7 +125,7 @@ public class ActorImageLabel extends ImageLabel {
       // set file (or cached one) if existent
       if (StringUtils.isNotBlank(actor.getEntityRoot())) {
         Path p = ImageCache.getCachedFile(actor.getStoragePath());
-        if (p != null && Files.exists(p)) {
+        if (p != null) {
           imagePath = p;
           return null;
         }

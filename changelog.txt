@@ -19,6 +19,7 @@ x fixed storing preference for episode scrape
 x fixed deleting original graphics on cache-miss 
 x changed forum links to the kodi.tv domain
 x fix some surround audio icons #117
+x fixed a mediaInformation JVM crash on ISO files
 
 Version 2.9.3
 =======================

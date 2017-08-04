@@ -1680,9 +1680,9 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
           String channels = getMediaInfo(StreamKind.Audio, i, "Channel(s)_Original", "Channel(s)");
           stream.setChannels(StringUtils.isEmpty(channels) ? "" : channels);
 
-          String br = getMediaInfo(StreamKind.Audio, i, "BitRate","BitRate_Maximum","BitRate_Minimum","BitRate_Nominal");
-
           try {
+            String br = getMediaInfo(StreamKind.Audio, i, "BitRate","BitRate_Maximum","BitRate_Minimum","BitRate_Nominal");
+
             String[] brMode = getMediaInfo(StreamKind.Audio, i, "BitRate_Mode").split("/");
             if (brMode.length > 1) {
               String[] brChunks = br.split("/");
@@ -1780,9 +1780,9 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
         String channels = getMediaInfo(StreamKind.Audio, 0, "Channel(s)");
         stream.setChannels(StringUtils.isEmpty(channels) ? "" : channels + "ch");
 
-        String br = getMediaInfo(StreamKind.Audio, 0, "BitRate","BitRate_Maximum","BitRate_Minimum","BitRate_Nominal");
-
         try {
+          String br = getMediaInfo(StreamKind.Audio, 0, "BitRate","BitRate_Maximum","BitRate_Minimum","BitRate_Nominal");
+
           String[] brMode = getMediaInfo(StreamKind.Audio,  0, "BitRate_Mode").split("/");
           if (brMode.length > 1) {
             String[] brChunks = br.split("/");

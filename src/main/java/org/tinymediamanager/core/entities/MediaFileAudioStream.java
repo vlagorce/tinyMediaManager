@@ -15,9 +15,8 @@
  */
 package org.tinymediamanager.core.entities;
 
-import org.tinymediamanager.core.AbstractModelObject;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.tinymediamanager.core.AbstractModelObject;
 
 /**
  * The class MediaFileAudioStream
@@ -82,7 +81,7 @@ public class MediaFileAudioStream extends AbstractModelObject {
   }
 
   public String getBitrateInKbps() {
-    return bitrate + " kbps";
+    return bitrate > 0 ? bitrate + " kbps" : "";
   }
 
   public String getLanguage() {

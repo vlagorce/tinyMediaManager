@@ -1351,6 +1351,14 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     }
   }
 
+  private int parseToInt(String str) {
+    try {
+      return Integer.parseInt(str);
+    } catch (Exception ignored) {
+      return 0;
+    }
+  }
+
   private long getMediaInfoSnapshotFromISO() {
     // check if we have a snapshot xml
     Path xmlFile = Paths.get(this.path, this.filename.replaceFirst("\\.iso$", "-mediainfo.xml"));
@@ -1671,12 +1679,24 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
           // AAC sometimes codes channels into Channel(s)_Original
           String channels = getMediaInfo(StreamKind.Audio, i, "Channel(s)_Original", "Channel(s)");
           stream.setChannels(StringUtils.isEmpty(channels) ? "" : channels);
+
           try {
-            String br = getMediaInfo(StreamKind.Audio, i, "BitRate", "BitRate_Maximum");
-            stream.setBitrate(Integer.parseInt(br) / 1000);
+            String br = getMediaInfo(StreamKind.Audio, i, "BitRate","BitRate_Maximum","BitRate_Minimum","BitRate_Nominal");
+
+            String[] brMode = getMediaInfo(StreamKind.Audio, i, "BitRate_Mode").split("/");
+            if (brMode.length > 1) {
+              String[] brChunks = br.split("/");
+              int brMult = 0;
+              for (int j = 0; j < brChunks.length; j++) {
+                brMult += parseToInt(brChunks[j].trim());
+              }
+              stream.setBitrate(brMult / 1000);
+            } else {
+              stream.setBitrate(Integer.parseInt(br) / 1000);
+            }
+          } catch (Exception ignored) {
           }
-          catch (Exception ignored) {
-          }
+
           String language = getMediaInfo(StreamKind.Audio, i, "Language/String", "Language");
           if (language.isEmpty()) {
             if (!isDiscFile()) { // video_ts parsed 'ts' as Tsonga
@@ -1759,12 +1779,24 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
         stream.setCodec(audioCodec.replaceAll("\\p{Punct}", ""));
         String channels = getMediaInfo(StreamKind.Audio, 0, "Channel(s)");
         stream.setChannels(StringUtils.isEmpty(channels) ? "" : channels + "ch");
+
         try {
-          String br = getMediaInfo(StreamKind.Audio, 0, "BitRate", "BitRate_Maximum");
-          stream.setBitrate(Integer.parseInt(br) / 1000);
+          String br = getMediaInfo(StreamKind.Audio, 0, "BitRate","BitRate_Maximum","BitRate_Minimum","BitRate_Nominal");
+
+          String[] brMode = getMediaInfo(StreamKind.Audio,  0, "BitRate_Mode").split("/");
+          if (brMode.length > 1) {
+            String[] brChunks = br.split("/");
+            int brMult = 0;
+            for (int j = 0; j < brChunks.length; j++) {
+              brMult += parseToInt(brChunks[j].trim());
+            }
+            stream.setBitrate(brMult / 1000);
+          } else {
+            stream.setBitrate(Integer.parseInt(br) / 1000);
+          }
+        } catch (Exception ignored) {
         }
-        catch (Exception e) {
-        }
+
         try {
           String bd = getMediaInfo(StreamKind.Audio, 0, "BitDepth");
           setBitDepth(Integer.parseInt(bd));

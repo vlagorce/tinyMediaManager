@@ -47,8 +47,8 @@ public enum MediaSource {
   // and our fallback
   UNKNOWN("Unknown");  // @formatter:on
 
-  private static final String START_TOKEN   = "[ .\\-_/\\\\\\[\\(]";
-  private static final String END_TOKEN     = "([ .\\-_/\\\\\\]\\)]|$)";
+  private static final String START_TOKEN   = "[ _\\,\\.\\(\\)\\[\\]\\-]";
+  private static final String END_TOKEN     = "([ _\\,\\.\\(\\)\\[\\]\\-]|$)";
 
   // tokens taken from http://en.wikipedia.org/wiki/Pirated_movie_release_types
   private static Pattern      uhdBlurayPattern = Pattern
@@ -57,8 +57,8 @@ public enum MediaSource {
       .compile(START_TOKEN + "(bluray|blueray|bdrip|brrip|dbrip|bd25|bd50|bdmv|blu\\-ray)" + END_TOKEN);
   private static Pattern      hdripPattern  = Pattern.compile(START_TOKEN + "(hdrip)" + END_TOKEN);
   private static Pattern      hddvdPattern  = Pattern.compile(START_TOKEN + "(hddvd|hddvdrip)" + END_TOKEN);
-  private static Pattern      dvdPattern    = Pattern.compile(START_TOKEN + "(dvd|video_ts|dvdrip|dvdr|r5)" + END_TOKEN);
-  private static Pattern      tvPattern     = Pattern.compile(START_TOKEN + "(hdtv|pdtv|dsr|dtv|hdtvrip|tvrip|dvbrip)" + END_TOKEN);
+  private static Pattern      dvdPattern    = Pattern.compile(START_TOKEN + "(dvd|video_ts|dvdrip|dvdr)" + END_TOKEN);
+  private static Pattern      tvPattern     = Pattern.compile(START_TOKEN + "(hdtv|pdtv|dsr|dtb|dtt|dttv|dtv|hdtvrip|tvrip|dvbrip)" + END_TOKEN);
   private static Pattern      vhsPattern    = Pattern.compile(START_TOKEN + "(vhs)" + END_TOKEN);
   private static Pattern      camPattern    = Pattern.compile(START_TOKEN + "(cam)" + END_TOKEN);
   private static Pattern      tsPattern     = Pattern.compile(START_TOKEN + "(ts|telesync|hdts|ht\\-ts)" + END_TOKEN);

@@ -1508,6 +1508,177 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     gatherMediaInformation(false);
   }
 
+  private int parseToInt(String str) {
+    try {
+      return Integer.parseInt(str);
+    } catch (Exception ignored) {
+      return 0;
+    }
+  }
+
+  private void fetchAudioInformation() {
+    int streams = parseToInt(getMediaInfo(StreamKind.General,0,"AudioCount"))>0?parseToInt(getMediaInfo(StreamKind.General,0,"AudioCount")):parseToInt(getMediaInfo(StreamKind.Audio, 0, "StreamCount"));
+
+    audioStreams.clear();
+
+    for (int i = 0; i < streams; i++) {
+      MediaFileAudioStream stream = new MediaFileAudioStream();
+      String audioCodec = getMediaInfo(StreamKind.Audio, i, "CodecID/Hint", "Format");
+      audioCodec = audioCodec.replaceAll("\\p{Punct}", "");
+      if (audioCodec.toLowerCase(Locale.ROOT).contains("truehd")) {
+        // <Format>TrueHD / AC-3</Format>
+        audioCodec = "TrueHD";
+      }
+
+      String audioAddition = getMediaInfo(StreamKind.Audio, i, "Format_Profile");
+      if ("dts".equalsIgnoreCase(audioCodec) && StringUtils.isNotBlank(audioAddition)) {
+        // <Format_Profile>X / MA / Core</Format_Profile>
+        if (audioAddition.contains("ES")) {
+          audioCodec = "DTSHD-ES";
+        }
+        if (audioAddition.contains("HRA")) {
+          audioCodec = "DTSHD-HRA";
+        }
+        if (audioAddition.contains("MA")) {
+          audioCodec = "DTSHD-MA";
+        }
+        if (audioAddition.contains("X")) {
+          audioCodec = "DTS-X";
+        }
+      }
+      if ("TrueHD".equalsIgnoreCase(audioCodec) && StringUtils.isNotBlank(audioAddition)) {
+        if (audioAddition.contains("Atmos")) {
+          audioCodec = "Atmos";
+        }
+      }
+      stream.setCodec(audioCodec);
+
+      // AAC sometimes codes channels into Channel(s)_Original
+      String channels = getMediaInfo(StreamKind.Audio, i, "Channel(s)_Original", "Channel(s)");
+      stream.setChannels(StringUtils.isEmpty(channels) ? "" : channels);
+
+      String br = getMediaInfo(StreamKind.Audio, i, "BitRate","BitRate_Maximum","BitRate_Minimum","BitRate_Nominal");
+
+      try {
+        String[] brMode = getMediaInfo(StreamKind.Audio, i, "BitRate_Mode").split("/");
+        if (brMode.length > 1) {
+          String[] brChunks = br.split("/");
+          int brMult = 0;
+          for (int j = 0; j < brChunks.length; j++) {
+            brMult += parseToInt(brChunks[j].trim());
+          }
+          stream.setBitrate(brMult / 1000);
+        } else {
+          stream.setBitrate(Integer.parseInt(br) / 1000);
+        }
+      } catch (Exception ignored) {
+      }
+
+      String language = getMediaInfo(StreamKind.Audio, i, "Language/String", "Language");
+      if (language.isEmpty()) {
+        if (!isDiscFile()) { // video_ts parsed 'ts' as Tsonga
+          // try to parse from filename
+          String shortname = getBasename().toLowerCase(Locale.ROOT);
+          stream.setLanguage(parseLanguageFromString(shortname));
+        }
+      }
+      else {
+        stream.setLanguage(parseLanguageFromString(language));
+      }
+      audioStreams.add(stream);
+    }
+  }
+
+  private void fetchVideoInformation() {
+    int height = parseToInt(getMediaInfo(StreamKind.Video, 0, "Height"));
+    String scanType = getMediaInfo(StreamKind.Video, 0, "ScanType");
+    int width = parseToInt(getMediaInfo(StreamKind.Video, 0, "Width"));
+    String videoCodec = getMediaInfo(StreamKind.Video, 0, "CodecID/Hint", "Format");
+
+    // fix for Microsoft VC-1
+    if (StringUtils.containsIgnoreCase(videoCodec, "Microsoft")) {
+      videoCodec = getMediaInfo(StreamKind.Video, 0, "Format");
+    }
+
+    String bd = getMediaInfo(StreamKind.Video, 0, "BitDepth");
+    setBitDepth(parseToInt(bd));
+
+    if (height == 0 || scanType.isEmpty()) {
+      setExactVideoFormat("");
+    }
+    else {
+      setExactVideoFormat(height + "" + Character.toLowerCase(scanType.charAt(0)));
+    }
+
+    setVideoWidth(width);
+    setVideoHeight(height);
+    setVideoCodec(StringUtils.isEmpty(videoCodec) ? "" : new Scanner(videoCodec).next());
+
+    String extensions = getMediaInfo(StreamKind.General, 0, "Codec/Extensions", "Format");
+    // get first extension
+    setContainerFormat(StringUtils.isBlank(extensions) ? "" : new Scanner(extensions).next().toLowerCase(Locale.ROOT));
+
+    // if container format is still empty -> insert the extension
+    if (StringUtils.isBlank(containerFormat)) {
+      setContainerFormat(getExtension());
+    }
+
+    String mvc = getMediaInfo(StreamKind.Video, 0, "MultiView_Count");
+
+    if (!StringUtils.isEmpty(mvc) && mvc.equals("2")) {
+      video3DFormat = VIDEO_3D;
+      String mvl = getMediaInfo(StreamKind.Video, 0, "MultiView_Layout").toLowerCase(Locale.ROOT);
+      LOGGER.debug("3D detected :) " + mvl);
+      if (!StringUtils.isEmpty(mvl) && mvl.contains("top") && mvl.contains("bottom")) {
+        video3DFormat = VIDEO_3D_TAB;
+      }
+      if (!StringUtils.isEmpty(mvl) && mvl.contains("side")) {
+        video3DFormat = VIDEO_3D_SBS;
+      }
+    }
+
+  }
+
+  private void fetchSubtitleInformation() {
+    int streams = parseToInt(getMediaInfo(StreamKind.General,0,"TextCount"))>0?parseToInt(getMediaInfo(StreamKind.General,0,"TextCount")):parseToInt(getMediaInfo(StreamKind.Text, 0, "StreamCount"));
+
+    subtitles.clear();
+    for (int i = 0; i < streams; i++) {
+      MediaFileSubtitle stream = new MediaFileSubtitle();
+
+      String codec = getMediaInfo(StreamKind.Text, i, "CodecID/Hint", "Format");
+      stream.setCodec(codec.replaceAll("\\p{Punct}", ""));
+      String lang = getMediaInfo(StreamKind.Text, i, "Language/String", "Language");
+      stream.setLanguage(parseLanguageFromString(lang));
+
+      String forced = getMediaInfo(StreamKind.Text, i, "Forced");
+      boolean b = forced.equalsIgnoreCase("true") || forced.equalsIgnoreCase("yes");
+      stream.setForced(b);
+
+      subtitles.add(stream);
+    }
+  }
+
+  private void fetchImageInformation() {
+    int height = parseToInt(getMediaInfo(StreamKind.Image, 0, "Height"));
+    int width = parseToInt(getMediaInfo(StreamKind.Image, 0, "Width"));
+    String videoCodec = getMediaInfo(StreamKind.Image, 0, "CodecID/Hint", "Format");
+    checkForAnimation();
+
+    setVideoHeight(height);
+    setVideoWidth(width);
+    setVideoCodec(StringUtils.isEmpty(videoCodec) ? "" : new Scanner(videoCodec).next());
+
+    String extensions = getMediaInfo(StreamKind.General, 0, "Codec/Extensions", "Format");
+    // get first extension
+    setContainerFormat(StringUtils.isBlank(extensions) ? "" : new Scanner(extensions).next().toLowerCase(Locale.ROOT));
+
+    // if container format is still empty -> insert the extension
+    if (StringUtils.isBlank(containerFormat)) {
+      setContainerFormat(getExtension());
+    }
+  }
+
   /**
    * Gathers the media information via the native mediainfo lib.
    * 
@@ -1584,204 +1755,30 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     }
     LOGGER.trace("got MI");
 
-    String height = "";
-    String scanType = "";
-    String width = "";
-    String videoCodec = "";
-
     switch (type) {
       case VIDEO:
       case VIDEO_EXTRA:
       case SAMPLE:
       case TRAILER:
-        height = getMediaInfo(StreamKind.Video, 0, "Height");
-        scanType = getMediaInfo(StreamKind.Video, 0, "ScanType");
-        width = getMediaInfo(StreamKind.Video, 0, "Width");
-        videoCodec = getMediaInfo(StreamKind.Video, 0, "CodecID/Hint", "Format");
-
-        // fix for Microsoft VC-1
-        if (StringUtils.containsIgnoreCase(videoCodec, "Microsoft")) {
-          videoCodec = getMediaInfo(StreamKind.Video, 0, "Format");
-        }
-        try {
-          String bd = getMediaInfo(StreamKind.Video, 0, "BitDepth");
-          setBitDepth(Integer.parseInt(bd));
-        }
-        catch (Exception ignored) {
-        }
+        // *****************
+        // get video stream
+        // *****************
+        fetchVideoInformation();
 
         // *****************
         // get audio streams
         // *****************
-        // int streams = getMediaInfo().streamCount(StreamKind.Audio);
-        int streams = 0;
-        if (streams == 0) {
-          // fallback 1
-          String cnt = getMediaInfo(StreamKind.General, 0, "AudioCount");
-          try {
-            streams = Integer.parseInt(cnt);
-          }
-          catch (Exception e) {
-            streams = 0;
-          }
-        }
-        if (streams == 0) {
-          // fallback 2
-          String cnt = getMediaInfo(StreamKind.Audio, 0, "StreamCount");
-          try {
-            streams = Integer.parseInt(cnt);
-          }
-          catch (Exception e) {
-            streams = 0;
-          }
-        }
-        audioStreams.clear();
-        for (int i = 0; i < streams; i++) {
-          MediaFileAudioStream stream = new MediaFileAudioStream();
-          String audioCodec = getMediaInfo(StreamKind.Audio, i, "CodecID/Hint", "Format");
-          audioCodec = audioCodec.replaceAll("\\p{Punct}", "");
-          if (audioCodec.toLowerCase(Locale.ROOT).contains("truehd")) {
-            // <Format>TrueHD / AC-3</Format>
-            audioCodec = "TrueHD";
-          }
-
-          String audioAddition = getMediaInfo(StreamKind.Audio, i, "Format_Profile");
-          if ("dts".equalsIgnoreCase(audioCodec) && StringUtils.isNotBlank(audioAddition)) {
-            // <Format_Profile>X / MA / Core</Format_Profile>
-            if (audioAddition.contains("ES")) {
-              audioCodec = "DTSHD-ES";
-            }
-            if (audioAddition.contains("HRA")) {
-              audioCodec = "DTSHD-HRA";
-            }
-            if (audioAddition.contains("MA")) {
-              audioCodec = "DTSHD-MA";
-            }
-            if (audioAddition.contains("X")) {
-              audioCodec = "DTS-X";
-            }
-          }
-          if ("TrueHD".equalsIgnoreCase(audioCodec) && StringUtils.isNotBlank(audioAddition)) {
-            if (audioAddition.contains("Atmos")) {
-              audioCodec = "Atmos";
-            }
-          }
-          stream.setCodec(audioCodec);
-
-          // AAC sometimes codes channels into Channel(s)_Original
-          String channels = getMediaInfo(StreamKind.Audio, i, "Channel(s)_Original", "Channel(s)");
-          stream.setChannels(StringUtils.isEmpty(channels) ? "" : channels);
-          try {
-            String br = getMediaInfo(StreamKind.Audio, i, "BitRate", "BitRate_Maximum");
-            stream.setBitrate(Integer.parseInt(br) / 1000);
-          }
-          catch (Exception ignored) {
-          }
-          String language = getMediaInfo(StreamKind.Audio, i, "Language/String", "Language");
-          if (language.isEmpty()) {
-            if (!isDiscFile()) { // video_ts parsed 'ts' as Tsonga
-              // try to parse from filename
-              String shortname = getBasename().toLowerCase(Locale.ROOT);
-              stream.setLanguage(parseLanguageFromString(shortname));
-            }
-          }
-          else {
-            stream.setLanguage(parseLanguageFromString(language));
-          }
-          audioStreams.add(stream);
-        }
+        fetchAudioInformation();
 
         // ********************
         // get subtitle streams
         // ********************
-        // streams = getMediaInfo().streamCount(StreamKind.Text);
-        streams = 0;
-        if (streams == 0) {
-          // fallback 1
-          String cnt = getMediaInfo(StreamKind.General, 0, "TextCount");
-          try {
-            streams = Integer.parseInt(cnt);
-          }
-          catch (Exception e) {
-            streams = 0;
-          }
-        }
-        if (streams == 0) {
-          // fallback 2
-          String cnt = getMediaInfo(StreamKind.Text, 0, "StreamCount");
-          try {
-            streams = Integer.parseInt(cnt);
-          }
-          catch (Exception e) {
-            streams = 0;
-          }
-        }
-
-        subtitles.clear();
-        for (int i = 0; i < streams; i++) {
-          MediaFileSubtitle stream = new MediaFileSubtitle();
-
-          String codec = getMediaInfo(StreamKind.Text, i, "CodecID/Hint", "Format");
-          stream.setCodec(codec.replaceAll("\\p{Punct}", ""));
-          String lang = getMediaInfo(StreamKind.Text, i, "Language/String", "Language");
-          stream.setLanguage(parseLanguageFromString(lang));
-
-          String forced = getMediaInfo(StreamKind.Text, i, "Forced");
-          boolean b = forced.equalsIgnoreCase("true") || forced.equalsIgnoreCase("yes");
-          stream.setForced(b);
-
-          subtitles.add(stream);
-        }
-
-        // detect 3D video (mainly from MKV files)
-        // sample Mediainfo output:
-        // MultiView_Count : 2
-        // MultiView_Layout : Top-Bottom (left eye first)
-        // MultiView_Layout : Side by Side (left eye first)
-        String mvc = getMediaInfo(StreamKind.Video, 0, "MultiView_Count");
-        if (!StringUtils.isEmpty(mvc) && mvc.equals("2")) {
-          video3DFormat = VIDEO_3D;
-          String mvl = getMediaInfo(StreamKind.Video, 0, "MultiView_Layout").toLowerCase(Locale.ROOT);
-          LOGGER.debug("3D detected :) " + mvl);
-          if (!StringUtils.isEmpty(mvl) && mvl.contains("top") && mvl.contains("bottom")) {
-            video3DFormat = VIDEO_3D_TAB;
-          }
-          if (!StringUtils.isEmpty(mvl) && mvl.contains("side")) {
-            video3DFormat = VIDEO_3D_SBS;
-          }
-        }
+        fetchSubtitleInformation();
 
         break;
 
       case AUDIO:
-        MediaFileAudioStream stream = new MediaFileAudioStream();
-        String audioCodec = getMediaInfo(StreamKind.Audio, 0, "CodecID/Hint", "Format");
-        stream.setCodec(audioCodec.replaceAll("\\p{Punct}", ""));
-        String channels = getMediaInfo(StreamKind.Audio, 0, "Channel(s)");
-        stream.setChannels(StringUtils.isEmpty(channels) ? "" : channels + "ch");
-        try {
-          String br = getMediaInfo(StreamKind.Audio, 0, "BitRate", "BitRate_Maximum");
-          stream.setBitrate(Integer.parseInt(br) / 1000);
-        }
-        catch (Exception e) {
-        }
-        try {
-          String bd = getMediaInfo(StreamKind.Audio, 0, "BitDepth");
-          setBitDepth(Integer.parseInt(bd));
-        }
-        catch (Exception ignored) {
-        }
-        String language = getMediaInfo(StreamKind.Audio, 0, "Language/String", "Language");
-        if (language.isEmpty()) {
-          // try to parse from filename
-          String shortname = getBasename().toLowerCase(Locale.ROOT);
-          stream.setLanguage(parseLanguageFromString(shortname));
-        }
-        else {
-          stream.setLanguage(parseLanguageFromString(language));
-        }
-        audioStreams.clear();
-        audioStreams.add(stream);
+        fetchAudioInformation();
         break;
 
       case POSTER:
@@ -1796,18 +1793,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
       case CLEARART:
       case DISCART:
       case EXTRATHUMB:
-        height = getMediaInfo(StreamKind.Image, 0, "Height");
-        // scanType = getMediaInfo(StreamKind.Image, 0, "ScanType"); // no scantype on graphics
-        width = getMediaInfo(StreamKind.Image, 0, "Width");
-        videoCodec = getMediaInfo(StreamKind.Image, 0, "CodecID/Hint", "Format");
-        // System.out.println(height + "-" + width + "-" + videoCodec);
-        try {
-          String bd = getMediaInfo(StreamKind.Image, 0, "BitDepth");
-          setBitDepth(Integer.parseInt(bd));
-        }
-        catch (Exception ignored) {
-        }
-        checkForAnimation();
+        fetchImageInformation();
         break;
 
       case NFO: // do nothing here, but do not display default warning (since we got the filedate)
@@ -1818,10 +1804,6 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
         break;
     }
 
-    // video codec
-    // e.g. XviD, x264, DivX 5, MPEG-4 Visual, AVC, etc.
-    // get first token (e.g. DivX 5 => DivX)
-    setVideoCodec(StringUtils.isEmpty(videoCodec) ? "" : new Scanner(videoCodec).next());
 
     // container format for all except subtitles (subtitle container format is handled another way)
     if (type == MediaFileType.SUBTITLE) {
@@ -1835,31 +1817,6 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
       // if container format is still empty -> insert the extension
       if (StringUtils.isBlank(containerFormat)) {
         setContainerFormat(getExtension());
-      }
-    }
-
-    if (height.isEmpty() || scanType.isEmpty()) {
-      setExactVideoFormat("");
-    }
-    else {
-      setExactVideoFormat(height + Character.toLowerCase(scanType.charAt(0)));
-    }
-
-    // video dimension
-    if (!width.isEmpty()) {
-      try {
-        setVideoWidth(Integer.parseInt(width));
-      }
-      catch (NumberFormatException e) {
-        setVideoWidth(0);
-      }
-    }
-    if (!height.isEmpty()) {
-      try {
-        setVideoHeight(Integer.parseInt(height));
-      }
-      catch (NumberFormatException e) {
-        setVideoHeight(0);
       }
     }
 

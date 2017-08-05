@@ -104,6 +104,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   public static final String                         VIDEO_FORMAT_8K      = "8k";
 
   // meta formats
+  public static final String                         VIDEO_FORMAT_LD      = "LD";
   public static final String                         VIDEO_FORMAT_SD      = "SD";
   public static final String                         VIDEO_FORMAT_HD      = "HD";
 
@@ -1113,15 +1114,23 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   }
 
   /**
-   * SD (less than 720 lines) or HD (more than 720 lines).
+   * LD (<=360 lines), SD (>360 and <720 lines) or HD (720+ lines).
    * 
-   * @return SD or HD
+   * @return LD or SD or HD
    */
   public String getVideoDefinitionCategory() {
-    if (this.videoWidth == 0 || this.videoHeight == 0) {
+    w = this.videoWidth;
+    h = this.videoHeight;
+    if (w == 0 || h == 0) {
       return "";
-    }
-    return this.videoWidth >= 1280 || this.videoHeight >= 720 ? "HD" : "SD";
+    }    
+    else if (w <= 640 && h <= 360) { //360p and below os LD
+      return VIDEO_FORMAT_LD;
+    }   
+    else if (w < 1280 && h < 720) { //below 720p is SD
+      return VIDEO_FORMAT_SD;
+    }     
+    return VIDEO_FORMAT_HD; //anything above 720p is considered HD
   }
 
   /**

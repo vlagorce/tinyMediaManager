@@ -73,6 +73,8 @@ public class BugReportDialog extends TmmDialog {
    */
   public BugReportDialog() {
     super(BUNDLE.getString("BugReport"), DIALOG_ID);
+
+    setBounds(0,0,600,280);
     getContentPane().setLayout(new BorderLayout(0, 0));
 
     JPanel panelContent = new JPanel();

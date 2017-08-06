@@ -16,6 +16,7 @@ HIGHLIGHTS:
 + added .sup as subtitle format for new installations #162
   (existing ones may have to add this file type in the settings)
 + added video bit depth from mediainfo
++ added more detailed video resolutions #181 (thx @Gridluck)
 x enhanced autom. downloading of subtitles #157 (thx @ProIcons)
 x fixed handling for nested movie structures
 x fixed default value for copyArtwork exporting
@@ -31,6 +32,7 @@ x fixed/enhanced media source detection #172 (thx @ProIcons)
 x fixed detection of certain audio streams with mediainfo #173 (thx @ProIcons)
 x fixed the year field in the editors: now you can set the year to zero
 x better handling of network interruptions in the artwork downloader
+x fixed default window size of the bug report dialog #184 (thx @ProIcons)
 
 Version 2.9.3
 =======================

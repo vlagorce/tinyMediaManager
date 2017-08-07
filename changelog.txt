@@ -27,7 +27,7 @@ x fixed deleting original graphics on cache-miss
 x changed forum links to the kodi.tv domain #155
 x fixed some things in the image cache #153
 x fix some surround audio icons #117
-x fixed a mediaInformation JVM crash on ISO files
+x fixed a mediaInformation JVM crash on some DVD ISO files
 x fixed/enhanced media source detection #172 (thx @ProIcons)
 x fixed detection of certain audio streams with mediainfo #173 (thx @ProIcons)
 x fixed the year field in the editors: now you can set the year to zero

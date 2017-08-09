@@ -5,8 +5,10 @@ HIGHLIGHTS:
 + MediaInfo changes: if you have high-res, 6+ channel, 4k files, 
   it is recommended to do a "mediainfo reload" of all movies, to get the correct icons.  
 + Animated poster scraping (not always visible inside TMM, but on filesystem)
++ OMDb API scraper. Private scraper: details at http://www.omdbapi.com/ (thx @wjanes)
 
 + export movies/tv shows via command line #116
++ added fallback language scraping with tmdb scraper (thx @ProIcons)
 + fixed various templates to use correct graphics
 + added new templates
   DeadSix27 HTML generator by DeadSix27 - https://forum.kodi.tv/showthread.php?tid=160863

@@ -1814,21 +1814,14 @@ public class Movie extends MediaEntity {
       }
     }
 
-    // actor image files
-    // if (MovieModuleManager.MOVIE_SETTINGS.isWriteActorImages()) {
-    // for (MovieActor actor : actors) {
-    // Path imagePath = actor.getStoragePath();
-    // if (imagePath != null) {
-    // filesToCache.add(imagePath);
-    // }
-    // }
-    // }
-
     // getting all scraped actors (= possible to cache)
     // and having never ever downloaded any pic is quite slow.
     // (Many invalid cache requests and exists() checks)
     // Better get a listing of existent actor images directly!
-    filesToCache.addAll(listActorFiles());
+    if (!isMultiMovieDir()) {
+      // and only for normal movies - MMD should not have .actors folder!
+      filesToCache.addAll(listActorFiles());
+    }
     // TODO: check against actors and trigger a download?
 
     return filesToCache;

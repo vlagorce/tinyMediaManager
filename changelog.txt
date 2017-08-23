@@ -7,6 +7,7 @@ HIGHLIGHTS:
 + Animated poster scraping (not always visible inside TMM, but on filesystem)
 + OMDb API scraper. Private scraper: details at http://www.omdbapi.com/ (thx @wjanes) - https://goo.gl/Duzhc6
   TinyMediaManager offers a limited access to OMDb API (10 calls per 15 seconds)
+- removed the RottenTomates scraper because this service is no longer available for public usage
 
 + export movies/tv shows via command line #116
 + added fallback language scraping with tmdb scraper (thx @ProIcons) - https://goo.gl/a87VZc

@@ -132,8 +132,9 @@ public class UpgradeTasks {
       // activate new scraper
       Settings.getInstance().getMovieSettings().addMovieArtworkScraper("animated");
       try {
-        Files.delete(Paths.get("plugins/scraper-rottentomatoes.jar")) // removed; going private
-      } catch (IOException ioe) {
+        Files.delete(Paths.get("plugins/scraper-rottentomatoes.jar")); // removed; going private
+      }
+      catch (IOException ignored) {
       }
     }
   }

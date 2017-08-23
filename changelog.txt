@@ -21,6 +21,7 @@ HIGHLIGHTS:
   (existing ones may have to add this file type in the settings)
 + added video bit depth from mediainfo
 + added more detailed video resolutions #181 (thx @Gridluck)
++ preload settings screen for faster startup
 x enhanced autom. downloading of subtitles #157 (thx @ProIcons)
 x fixed handling for nested movie structures
 x fixed default value for copyArtwork exporting

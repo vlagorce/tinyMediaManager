@@ -6,6 +6,8 @@ HIGHLIGHTS:
   it is recommended to do a "mediainfo reload" of all movies, to get the correct icons.  
 + Animated poster scraping (not always visible inside TMM, but on filesystem)
 + OMDb API scraper. Private scraper: details at http://www.omdbapi.com/ (thx @wjanes) - https://goo.gl/Duzhc6
+  TinyMediaManager offers a limited access to OMDb API (10 calls per 15 seconds)
+- removed the RottenTomates scraper because this service is no longer available for public usage
 
 + export movies/tv shows via command line #116
 + added fallback language scraping with tmdb scraper (thx @ProIcons) - https://goo.gl/a87VZc
@@ -19,6 +21,7 @@ HIGHLIGHTS:
   (existing ones may have to add this file type in the settings)
 + added video bit depth from mediainfo
 + added more detailed video resolutions #181 (thx @Gridluck)
++ preload settings screen for faster startup
 x enhanced autom. downloading of subtitles #157 (thx @ProIcons)
 x fixed handling for nested movie structures
 x fixed default value for copyArtwork exporting

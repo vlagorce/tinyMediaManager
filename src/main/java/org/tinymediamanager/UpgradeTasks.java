@@ -131,6 +131,11 @@ public class UpgradeTasks {
       LOGGER.info("Performing upgrade tasks to version 2.9.4");
       // activate new scraper
       Settings.getInstance().getMovieSettings().addMovieArtworkScraper("animated");
+      try {
+        Files.delete(Paths.get("plugins/scraper-rottentomatoes.jar")); // removed; going private
+      }
+      catch (IOException ignored) {
+      }
     }
   }
 

@@ -6,6 +6,7 @@ HIGHLIGHTS:
   it is recommended to do a "mediainfo reload" of all movies, to get the correct icons.  
 + Animated poster scraping (not always visible inside TMM, but on filesystem)
 + OMDb API scraper. Private scraper: details at http://www.omdbapi.com/ (thx @wjanes) - https://goo.gl/Duzhc6
+  TinyMediaManager offers a limited access to OMDb API (10 calls per 15 seconds)
 
 + export movies/tv shows via command line #116
 + added fallback language scraping with tmdb scraper (thx @ProIcons) - https://goo.gl/a87VZc

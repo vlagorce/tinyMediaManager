@@ -35,4 +35,6 @@ tinyMediaManager is being built with maven, so you need to have maven (and git o
 
    `$ mvn package`
 
-After that you will find the packaged build in the folder `dist`
+After that you will find the packaged build in the folder `dist`.
+
+By building tinyMediaManager yourself, your version may differ from the release version online and the updater may down-/upgrade you to the actual release version!

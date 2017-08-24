@@ -9,6 +9,7 @@ HIGHLIGHTS:
   TinyMediaManager offers a limited access to OMDb API (10 calls per 15 seconds)
 - removed the RottenTomates scraper because this service is no longer available for public usage
 
++ updated libmediainfo to 0.7.98
 + export movies/tv shows via command line #116
 + added fallback language scraping with tmdb scraper (thx @ProIcons) - https://goo.gl/a87VZc
 + fixed various templates to use correct graphics

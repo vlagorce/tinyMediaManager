@@ -558,10 +558,10 @@ public class UpgradeTasks {
         moviePaths.add(movie.getPathNIO());
       }
       for (Path path : moviePaths) {
-        LOGGER.trace("Checking: " + path);
+        LOGGER.debug("Checking: " + path);
         List<Movie> movies = movieList.getMoviesByPath(path);
         Path moviePath = movies.get(0).getPathNIO();
-        LOGGER.trace("Movies: " + movies.size() + " Path: " + moviePath);
+        LOGGER.debug("Movies: " + movies.size() + " Path: " + moviePath);
         for (Path path2 : moviePaths) {
           if (moviePath.equals(path2)) {
             continue; // skip ourself
@@ -570,13 +570,13 @@ public class UpgradeTasks {
             // ka-ching - nested movie detected! Change movie(s) in path to MMD...
             for (Movie mmdMovie : movies) {
               if (!mmdMovie.isMultiMovieDir()) {
-                LOGGER.trace("Movie is now MMD: " + mmdMovie.getPathNIO());
+                LOGGER.debug("Movie is now MMD: " + mmdMovie.getPathNIO());
                 mmdMovie.setMultiMovieDir(true);
 
                 // remove now all MFs not in this dir from movie
                 for (MediaFile mf : mmdMovie.getMediaFiles()) {
                   if (!mf.getFileAsPath().getParent().equals(mmdMovie.getPathNIO())) {
-                    LOGGER.trace("  removing MF: " + mf.getFileAsPath());
+                    LOGGER.debug("  removing MF: " + mf.getFileAsPath());
                     mmdMovie.removeFromMediaFiles(mf);
                   }
                 }

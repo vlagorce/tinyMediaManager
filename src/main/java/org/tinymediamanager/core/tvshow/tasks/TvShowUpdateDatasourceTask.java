@@ -226,7 +226,8 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         }
 
         // video FILE in DS root - not supported!
-        if (subdir.isFile() && Globals.settings.getVideoFileType().contains("." + FilenameUtils.getExtension(subdir.getName()))) {
+        if (subdir.isFile()
+            && Globals.settings.getVideoFileType().contains("." + FilenameUtils.getExtension(subdir.getName()).toLowerCase(Locale.ROOT))) {
           MessageManager.instance.pushMessage(
               new Message(MessageLevel.ERROR, "update.datasource", "update.datasource.episodeinroot", new String[] { subdir.getName() }));
         }

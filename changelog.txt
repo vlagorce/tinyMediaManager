@@ -3,6 +3,7 @@ Version 2.9.5
 x adapt IMDB site changes; getting plot works again
 x fix fanart.tv scraping (thread crash)
 x fix TMDB actor naming scrape
+x fix ANIDB scrape
 
 
 Version 2.9.4

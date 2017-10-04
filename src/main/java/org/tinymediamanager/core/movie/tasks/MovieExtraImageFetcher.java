@@ -251,7 +251,7 @@ public class MovieExtraImageFetcher implements Runnable {
       IOUtils.closeQuietly(is);
       IOUtils.closeQuietly(outputStream);
     }
-    catch (IOException e) {
+    catch (Exception e) {
       LOGGER.warn("download extrafanarts", e);
       IOUtils.closeQuietly(is);
       IOUtils.closeQuietly(outputStream);

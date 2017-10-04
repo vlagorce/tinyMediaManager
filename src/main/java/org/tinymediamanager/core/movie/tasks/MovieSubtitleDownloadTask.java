@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.file.Path;
+import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -69,7 +70,7 @@ public class MovieSubtitleDownloadTask extends DownloadTask {
 
         while (ze != null) {
           String zipEntryFilename = ze.getName();
-          String extension = FilenameUtils.getExtension(zipEntryFilename);
+          String extension = FilenameUtils.getExtension(zipEntryFilename).toLowerCase(Locale.ROOT);
 
           // check is that is a valid file type
           if (!Globals.settings.getSubtitleFileType().contains("." + extension) && !"idx".equals(extension)) {

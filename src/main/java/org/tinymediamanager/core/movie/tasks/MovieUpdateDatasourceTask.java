@@ -164,7 +164,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
               }
             }
             else {
-              if (Globals.settings.getVideoFileType().contains("." + FilenameUtils.getExtension(file.getName()))) {
+              if (Globals.settings.getVideoFileType().contains("." + FilenameUtils.getExtension(file.getName()).toLowerCase(Locale.ROOT))) {
                 if (MovieModuleManager.MOVIE_SETTINGS.isDetectMovieMultiDir()) {
                   parseDsRoot = true; // at least on movie found in DS root
                 }

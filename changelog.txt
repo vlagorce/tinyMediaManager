@@ -1,11 +1,13 @@
 Version 2.9.5
 =======================
++ added some more (common) languages to the available scraper languages
 x adapt IMDB site changes; getting plot works again
 x fix fanart.tv scraping (thread crash)
 x fix TMDB actor naming scrape
 x fix ANIDB scraper (no episode/season fetched)
 x fix Kodi scraper
-
+x fix of the bug report dialog (saving log files and layout)
+x some minor fixes
 
 Version 2.9.4
 =======================

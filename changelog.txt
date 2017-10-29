@@ -1,3 +1,12 @@
+Version 2.9.6
+=======================
++ add persian language
+x fix animated pictures scraper; did not work on automatic scrape
+x fix AniDB scrape (too much results)
+x fix country tags in NFO (now multiple)
+x change episodeguide url in TvShow NFOs
+
+
 Version 2.9.5
 =======================
 + added some more (common) languages to the available scraper languages
@@ -8,6 +17,7 @@ x fix ANIDB scraper (no episode/season fetched)
 x fix Kodi scraper
 x fix of the bug report dialog (saving log files and layout)
 x some minor fixes
+
 
 Version 2.9.4
 =======================
@@ -50,6 +60,7 @@ x fixed detection of certain audio streams with mediainfo #173 (thx @ProIcons)
 x fixed the year field in the editors: now you can set the year to zero
 x better handling of network interruptions in the artwork downloader
 x fixed default window size of the bug report dialog #184 (thx @ProIcons)
+
 
 Version 2.9.3
 =======================

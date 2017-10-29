@@ -168,7 +168,10 @@ public class TvShowToXbmcNfoConnector {
       xbmc.setId(tvdbid);
       xbmc.episodeguide.url.cache = tvdbid + ".xml";
       xbmc.episodeguide.url.url = "http://www.thetvdb.com/api/1D62F2F90030C444/series/" + tvdbid + "/all/"
-          + TvShowModuleManager.SETTINGS.getScraperLanguage().name() + ".xml";
+          + TvShowModuleManager.SETTINGS.getScraperLanguage().name() + ".zip";
+      // was XML, changed to ZIP
+      // see https://forum.kodi.tv/showthread.php?tid=142723&pid=2660524#pid2660524
+      // Kodi v16/v17 also write .zip
     }
     xbmc.setImdbid(tvShow.getIdAsString(Constants.IMDB));
     xbmc.setTitle(tvShow.getTitle());

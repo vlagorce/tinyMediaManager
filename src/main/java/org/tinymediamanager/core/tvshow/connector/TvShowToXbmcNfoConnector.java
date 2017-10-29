@@ -166,7 +166,7 @@ public class TvShowToXbmcNfoConnector {
     String tvdbid = tvShow.getIdAsString(Constants.TVDB);
     if (StringUtils.isNotBlank(tvdbid)) {
       xbmc.setId(tvdbid);
-      xbmc.episodeguide.url.cache = tvdbid + ".xml";
+      xbmc.episodeguide.url.cache = tvdbid + "-" + TvShowModuleManager.SETTINGS.getScraperLanguage().name() + ".xml";
       xbmc.episodeguide.url.url = "http://www.thetvdb.com/api/1D62F2F90030C444/series/" + tvdbid + "/all/"
           + TvShowModuleManager.SETTINGS.getScraperLanguage().name() + ".zip";
       // was XML, changed to ZIP

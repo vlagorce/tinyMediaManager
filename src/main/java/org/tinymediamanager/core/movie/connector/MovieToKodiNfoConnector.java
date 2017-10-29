@@ -126,7 +126,7 @@ public class MovieToKodiNfoConnector {
   private Map<String, Object>  ids;
   public int                   tmdbId                = 0;
   public String                trailer               = "";
-  public String                country               = "";
+  public List<String>          country;
   public String                premiered             = "";
   public Fileinfo              fileinfo;
   public boolean               watched               = false;
@@ -317,10 +317,12 @@ public class MovieToKodiNfoConnector {
     kodi.ids.putAll(movie.getIds());
 
     if (StringUtils.isNotEmpty(movie.getProductionCompany())) {
-      kodi.studio = Arrays.asList(movie.getProductionCompany().split("\\s*[,\\/]\\s*")); // split on , or / and remove whitespace around
+      kodi.studio = Arrays.asList(movie.getProductionCompany().split("\\s*[,;\\/]\\s*")); // split on , ; / and remove whitespace around
+    }
+    if (StringUtils.isNotEmpty(movie.getCountry())) {
+      kodi.country = Arrays.asList(movie.getCountry().split("\\s*[,;\\/]\\s*")); // split on , ; / and remove whitespace around
     }
 
-    kodi.country = movie.getCountry();
     kodi.watched = movie.isWatched();
     if (kodi.watched) {
       kodi.playcount = 1;
@@ -632,7 +634,15 @@ public class MovieToKodiNfoConnector {
       }
       movie.setProductionCompany(movie.getProductionCompany().replaceAll("\\s*,\\s*", " / "));
 
-      movie.setCountry(kodi.country);
+      String country = StringUtils.join(kodi.country, " / ");
+      if (country == null) {
+        movie.setCountry("");
+      }
+      else {
+        movie.setCountry(country);
+      }
+      movie.setCountry(movie.getCountry().replaceAll("\\s*,\\s*", " / "));
+
       if (!StringUtils.isEmpty(kodi.certification)) {
         movie.setCertification(MovieHelpers.parseCertificationStringForMovieSetupCountry(kodi.certification));
       }

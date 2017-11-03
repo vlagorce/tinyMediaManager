@@ -193,6 +193,8 @@ public class MovieExtraImageFetcher implements Runnable {
       else {
         LOGGER.error("fetch image: " + e.getMessage());
       }
+    }
+    finally {
       IOUtils.closeQuietly(is);
       IOUtils.closeQuietly(outputStream);
       // remove temp file

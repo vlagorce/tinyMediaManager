@@ -7,7 +7,7 @@ x fix country tags in NFO (now multiple)
 x change episodeguide url in TvShow NFOs
 x cleaning of orphaned episodes in the database
 x storing of episodes in special seasons (season 0) no more switches to season -1
-
+x fix occassional crashes when writing objects to the database
 
 Version 2.9.5
 =======================

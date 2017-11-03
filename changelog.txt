@@ -1,6 +1,7 @@
 Version 2.9.6
 =======================
 + add persian language
+x reduced log output on the console for the command line version
 x fix animated pictures scraper; did not work on automatic scrape
 x fix AniDB scrape (too much results)
 x fix country tags in NFO (now multiple)

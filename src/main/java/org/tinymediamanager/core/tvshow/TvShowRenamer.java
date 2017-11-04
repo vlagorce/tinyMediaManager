@@ -261,6 +261,11 @@ public class TvShowRenamer {
     // Assumption: all multi-episodes share the same season!!!
     // #######################################################
 
+    // do not touch extras et all!
+    if (mf.getType() == MediaFileType.VIDEO_EXTRA) {
+      return;
+    }
+
     List<TvShowEpisode> eps = TvShowList.getInstance().getTvEpisodesByFile(show, mf.getFile());
     if (eps == null || eps.size() == 0) {
       // FIXME: workaround for r1972

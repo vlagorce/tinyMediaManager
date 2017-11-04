@@ -180,12 +180,6 @@ public class MediaEntityImageFetcherTask implements Runnable {
           LOGGER.error("fetch image", e);
         }
 
-        // remove temp file
-        // Path tempFile = entity.getPathNIO().resolve(filename + "." + timestamp + ".part"); // multi episode same file
-        if (tempFile != null && Files.exists(tempFile)) {
-          Utils.deleteFileSafely(tempFile);
-        }
-
         // fallback
         if (firstImage && StringUtils.isNotBlank(oldFilename)) {
           switch (type) {
@@ -209,6 +203,13 @@ public class MediaEntityImageFetcherTask implements Runnable {
 
         MessageManager.instance.pushMessage(
             new Message(MessageLevel.ERROR, "ArtworkDownload", "message.artwork.threadcrashed", new String[] { ":", e.getLocalizedMessage() }));
+      }
+      finally {
+        // remove temp file
+        // Path tempFile = entity.getPathNIO().resolve(filename + "." + timestamp + ".part"); // multi episode same file
+        if (tempFile != null && Files.exists(tempFile)) {
+          Utils.deleteFileSafely(tempFile);
+        }
       }
 
     }

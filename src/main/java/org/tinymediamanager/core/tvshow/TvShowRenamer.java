@@ -179,12 +179,13 @@ public class TvShowRenamer {
     MediaFile mf = episode.getMediaFiles(MediaFileType.VIDEO).get(0);
     Path disc = mf.getFileAsPath().getParent().toAbsolutePath(); // folder
     String folder = show.getPathNIO().relativize(disc).toString().toUpperCase(Locale.ROOT); // relative
-    while (folder.contains("BDMV") || folder.contains("VIDEO_TS")) {
+    while (folder.contains("BDMV") || folder.contains("VIDEO_TS") || folder.contains("HVDVD_TS")) {
       disc = disc.getParent();
       folder = show.getPathNIO().relativize(disc).toString().toUpperCase(Locale.ROOT); // reevaluate
     }
 
-    if (!disc.getFileName().toString().equalsIgnoreCase("BDMV") && !disc.getFileName().toString().equalsIgnoreCase("VIDEO_TS")) {
+    if (!disc.getFileName().toString().equalsIgnoreCase("BDMV") && !disc.getFileName().toString().equalsIgnoreCase("VIDEO_TS")
+        && !disc.getFileName().toString().equalsIgnoreCase("HVDVD_TS")) {
       LOGGER.error("Episode is labeled as 'on BD/DVD', but structure seems not to match. Better exit and do nothing... o_O");
       // return;
     }

@@ -1742,34 +1742,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
         audioStreams.clear();
         for (int i = 0; i < streams; i++) {
           MediaFileAudioStream stream = new MediaFileAudioStream();
-          String audioCodec = getMediaInfo(StreamKind.Audio, i, "CodecID/Hint", "Format");
-          audioCodec = audioCodec.replaceAll("\\p{Punct}", "");
-          if (audioCodec.toLowerCase(Locale.ROOT).contains("truehd")) {
-            // <Format>TrueHD / AC-3</Format>
-            audioCodec = "TrueHD";
-          }
-
-          String audioAddition = getMediaInfo(StreamKind.Audio, i, "Format_Profile");
-          if ("dts".equalsIgnoreCase(audioCodec) && StringUtils.isNotBlank(audioAddition)) {
-            // <Format_Profile>X / MA / Core</Format_Profile>
-            if (audioAddition.contains("ES")) {
-              audioCodec = "DTSHD-ES";
-            }
-            if (audioAddition.contains("HRA")) {
-              audioCodec = "DTSHD-HRA";
-            }
-            if (audioAddition.contains("MA")) {
-              audioCodec = "DTSHD-MA";
-            }
-            if (audioAddition.contains("X")) {
-              audioCodec = "DTS-X";
-            }
-          }
-          if ("TrueHD".equalsIgnoreCase(audioCodec) && StringUtils.isNotBlank(audioAddition)) {
-            if (audioAddition.contains("Atmos")) {
-              audioCodec = "Atmos";
-            }
-          }
+          String audioCodec = this.getAudioCodecFromStream(i);
           stream.setCodec(audioCodec);
 
           // AAC sometimes codes channels into Channel(s)_Original
@@ -1873,7 +1846,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
 
       case AUDIO:
         MediaFileAudioStream stream = new MediaFileAudioStream();
-        String audioCodec = getMediaInfo(StreamKind.Audio, 0, "CodecID/Hint", "Format");
+        String audioCodec = this.getAudioCodecFromStream(0);
         stream.setCodec(audioCodec.replaceAll("\\p{Punct}", ""));
         String channels = getMediaInfo(StreamKind.Audio, 0, "Channel(s)");
         stream.setChannels(StringUtils.isEmpty(channels) ? "" : channels + "ch");
@@ -2053,6 +2026,39 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     // close mediainfo lib
     closeMediaInfo();
     LOGGER.trace("closed MI");
+  }
+
+  private String getAudioCodecFromStream(int streamNum) {
+    String audioCodec = getMediaInfo(StreamKind.Audio, streamNum, "CodecID/Hint", "Format");
+    audioCodec = audioCodec.replaceAll("\\p{Punct}", "");
+    if (audioCodec.toLowerCase(Locale.ROOT).contains("truehd")) {
+      // <Format>TrueHD / AC-3</Format>
+      audioCodec = "TrueHD";
+    }
+
+    String audioAddition = getMediaInfo(StreamKind.Audio, streamNum, "Format_Profile");
+    if ("dts".equalsIgnoreCase(audioCodec) && StringUtils.isNotBlank(audioAddition)) {
+      // <Format_Profile>X / MA / Core</Format_Profile>
+      if (audioAddition.contains("ES")) {
+        audioCodec = "DTSHD-ES";
+      }
+      if (audioAddition.contains("HRA")) {
+        audioCodec = "DTSHD-HRA";
+      }
+      if (audioAddition.contains("MA")) {
+        audioCodec = "DTSHD-MA";
+      }
+      if (audioAddition.contains("X")) {
+        audioCodec = "DTS-X";
+      }
+    }
+    if ("TrueHD".equalsIgnoreCase(audioCodec) && StringUtils.isNotBlank(audioAddition)) {
+      if (audioAddition.contains("Atmos")) {
+        audioCodec = "Atmos";
+      }
+    }
+
+    return audioCodec;
   }
 
   private String parseLanguageFromString(String shortname) {

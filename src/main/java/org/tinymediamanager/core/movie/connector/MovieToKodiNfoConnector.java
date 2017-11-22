@@ -437,16 +437,7 @@ public class MovieToKodiNfoConnector {
 
       kodi.fileinfo.streamdetails.audio.clear();
       for (MediaFileAudioStream as : mediaFile.getAudioStreams()) {
-        Audio audio = new Audio();
-
-        if (StringUtils.isNotBlank(as.getCodec())) {
-          audio.codec = as.getCodec().replaceAll("-", "_");
-        }
-        else {
-          audio.codec = as.getCodec();
-        }
-        audio.language = as.getLanguage();
-        audio.channels = String.valueOf(as.getChannelsAsInt());
+        Audio audio = createAudio(as);
         kodi.fileinfo.streamdetails.audio.add(audio);
       }
 
@@ -458,6 +449,17 @@ public class MovieToKodiNfoConnector {
       }
       break;
     }
+
+    // add external audio to NFO
+    if (MovieModuleManager.MOVIE_SETTINGS.isIncludeExternalAudioStreams()) {
+      for (MediaFile mediaFile : movie.getMediaFiles(MediaFileType.AUDIO)) {
+        for (MediaFileAudioStream as : mediaFile.getAudioStreams()) {
+          Audio audio = createAudio(as);
+          kodi.fileinfo.streamdetails.audio.add(audio);
+        }
+      }
+    }
+
     // add external subtitles to NFO
     for (MediaFile mediaFile : movie.getMediaFiles(MediaFileType.SUBTITLE)) {
       for (MediaFileSubtitle ss : mediaFile.getSubtitles()) {
@@ -471,6 +473,21 @@ public class MovieToKodiNfoConnector {
     kodi.unsupportedElements.addAll(unsupportedTags);
 
     return kodi;
+  }
+
+  private static Audio createAudio(MediaFileAudioStream audioStream) {
+    Audio audio = new Audio();
+
+    if (StringUtils.isNotBlank(audioStream.getCodec())) {
+      audio.codec = audioStream.getCodec().replaceAll("-", "_");
+    }
+    else {
+      audio.codec = audioStream.getCodec();
+    }
+    audio.language = audioStream.getLanguage();
+    audio.channels = String.valueOf(audioStream.getChannelsAsInt());
+
+    return audio;
   }
 
   static void writeNfoFiles(Movie movie, MovieToKodiNfoConnector kodi, List<MovieNfoNaming> nfoNames) {

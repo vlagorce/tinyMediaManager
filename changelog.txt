@@ -1,6 +1,7 @@
 Version 2.9.6
 =======================
 + add persian language
++ added option to include external audio files in Kodi NFO streamdetails (thx @midgetspy)  
 x fix parsing MediaInfo for .ISO files (endless hanging sometimes)
 x reduced log output on the console for the command line version
 x fix animated pictures scraper; did not work on automatic scrape
@@ -10,6 +11,8 @@ x change episodeguide url in TvShow NFOs
 x cleaning of orphaned episodes in the database
 x storing of episodes in special seasons (season 0) no more switches to season -1
 x fix occassional crashes when writing objects to the database
+x fix audio codes parsing of audio files (thx @midgetspy)
+x fix renaming of movies with renamer token $2 and starting with umlauts
 
 Version 2.9.5
 =======================

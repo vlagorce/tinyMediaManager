@@ -43,7 +43,9 @@
 		<antcall target="downloadLocale">
 			<param name="lang" value="el" />
 		</antcall>
-		<!--<antcall target="downloadLocale"><param name="lang" value="fa" /></antcall>-->
+		<antcall target="downloadLocale">
+			<param name="lang" value="fa" />
+		</antcall>
 		<antcall target="downloadLocale">
 			<param name="lang" value="fr" />
 		</antcall>

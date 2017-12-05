@@ -4,6 +4,7 @@ Version 2.9.6
 + added option to include external audio files in Kodi NFO streamdetails (thx @midgetspy)  
 + support for mediainfo 17.10+ XMLs
 + updated mediainfo to 17.10
+x added a workaround for java 9 compatibility issues
 x fix parsing MediaInfo for .ISO files (endless hanging sometimes)
 x reduced log output on the console for the command line version
 x fix animated pictures scraper; did not work on automatic scrape

@@ -57,6 +57,7 @@ resource = [windows-x86] native/windows-x86/mingwm10.dll
 
 # templates
 resource = templates/readme.txt
+uresource = templates/DataTablesHTML.jar
 uresource = templates/DetailExampleHtml.jar
 uresource = templates/DetailExample2Html.jar
 uresource = templates/ExcelXml.jar

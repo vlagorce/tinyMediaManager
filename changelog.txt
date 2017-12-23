@@ -1,5 +1,6 @@
 Version 2.9.7
 =======================
++ added DataTables export template - thx to @C. Janke
 x fixed the imdb scraper (imdb changed their web pages) - thx to @Grizzler89
 
 Version 2.9.6

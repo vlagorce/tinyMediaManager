@@ -1,3 +1,7 @@
+Version 2.9.7
+=======================
+x fixed the imdb scraper (imdb changed their web pages) - thx to @Grizzler89
+
 Version 2.9.6
 =======================
 + add persian language

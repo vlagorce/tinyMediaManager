@@ -82,13 +82,13 @@
         <dependency>
             <groupId>org.tinymediamanager.plugins</groupId>
             <artifactId>scraper-imdb</artifactId>
-            <version>1.10</version>
+            <version>1.11-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.tinymediamanager.plugins</groupId>
             <artifactId>scraper-kodi</artifactId>
-            <version>1.8</version>
+            <version>1.9-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

@@ -671,8 +671,10 @@ public class Settings extends AbstractModelObject {
     movieSettings.addMovieNfoFilename(MovieNfoNaming.MOVIE_NFO);
     movieSettings.addMoviePosterFilename(MoviePosterNaming.POSTER_JPG);
     movieSettings.addMoviePosterFilename(MoviePosterNaming.POSTER_PNG);
+    movieSettings.addMoviePosterFilename(MoviePosterNaming.POSTER_JPG);
     movieSettings.addMovieFanartFilename(MovieFanartNaming.FANART_JPG);
     movieSettings.addMovieFanartFilename(MovieFanartNaming.FANART_PNG);
+    movieSettings.addMovieFanartFilename(MovieFanartNaming.FANART_JPG);
 
     // activate default scrapers
     for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.MOVIE_ARTWORK)) {

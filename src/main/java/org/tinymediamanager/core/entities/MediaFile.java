@@ -143,6 +143,8 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   @JsonProperty
   private int                                        bitDepth             = 0;
   @JsonProperty
+  private double                                     frameRate            = 0.0d;
+  @JsonProperty
   private int                                        durationInSecs       = 0;
   @JsonProperty
   private int                                        stacking             = 0;
@@ -1232,6 +1234,16 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     firePropertyChange("bitRateInKbps", oldValue, newValue);
   }
 
+  public double getFrameRate() {
+    return frameRate;
+  }
+
+  public void setFrameRate(double frameRate) {
+    double oldValue = this.frameRate;
+    this.frameRate = frameRate;
+    firePropertyChange("frameRate", oldValue, frameRate);
+  }
+
   /**
    * Gets the bite rate in kbps.
    * 
@@ -1702,6 +1714,13 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
         catch (Exception ignored) {
         }
 
+        try {
+          String fr = getMediaInfo(StreamKind.Video, 0, "FrameRate");
+          setFrameRate(Double.parseDouble(fr));
+        }
+        catch (Exception ignored) {
+        }
+
         // *****************
         // get audio streams
         // *****************
@@ -1854,6 +1873,13 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
           else {
             stream.setBitrate(Integer.parseInt(br) / 1000);
           }
+        }
+        catch (Exception ignored) {
+        }
+
+        try {
+          String fr = getMediaInfo(StreamKind.Video, 0, "FrameRate");
+          setFrameRate(Double.parseDouble(fr));
         }
         catch (Exception ignored) {
         }

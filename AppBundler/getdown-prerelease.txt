@@ -88,6 +88,7 @@ skip_md5_cache = true
 #####################################################################################
 jvmarg = -XX:+IgnoreUnrecognizedVMOptions
 jvmarg = --add-modules=java.xml.bind
+jvmarg = --add-modules=java.xml.ws
 jvmarg = -Xms64m
 jvmarg = -Xmx512m
 jvmarg = -Xss512k

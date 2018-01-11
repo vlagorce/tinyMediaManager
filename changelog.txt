@@ -1,3 +1,10 @@
+Version 2.9.8
+=======================
+x fix IMDB language and release date parsing
+x fix parsing audio channel information 
+x fix naming detection for 4k files
+
+
 Version 2.9.7
 =======================
 + added DataTables export template - thx to @C. Janke

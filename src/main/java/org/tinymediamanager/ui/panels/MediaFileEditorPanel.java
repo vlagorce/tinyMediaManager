@@ -440,6 +440,9 @@ public class MediaFileEditorPanel extends JPanel {
           if (mfEditor.getVideoHeight() != mfOriginal.getVideoHeight()) {
             mfOriginal.setVideoHeight(mfEditor.getVideoHeight());
           }
+          if (mfEditor.getFrameRate() != mfOriginal.getFrameRate()) {
+            mfOriginal.setFrameRate(mfEditor.getFrameRate());
+          }
           if (!mfEditor.getVideo3DFormat().equals(mfOriginal.getVideo3DFormat())) {
             mfOriginal.setVideo3DFormat(mfEditor.getVideo3DFormat());
           }

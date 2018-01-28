@@ -1,5 +1,6 @@
 Version 2.9.8
 =======================
++ added frame rate from mediainfo
 x fix IMDB language and release date parsing
 x fix parsing audio channel information 
 x fix naming detection for 4k files

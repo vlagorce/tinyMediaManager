@@ -177,6 +177,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     this.videoHeight = clone.videoHeight;
     this.videoWidth = clone.videoWidth;
     this.overallBitRate = clone.overallBitRate;
+    this.frameRate = clone.frameRate;
     this.bitDepth = clone.bitDepth;
     this.durationInSecs = clone.durationInSecs;
     this.stacking = clone.stacking;
@@ -1873,13 +1874,6 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
           else {
             stream.setBitrate(Integer.parseInt(br) / 1000);
           }
-        }
-        catch (Exception ignored) {
-        }
-
-        try {
-          String fr = getMediaInfo(StreamKind.Video, 0, "FrameRate");
-          setFrameRate(Double.parseDouble(fr));
         }
         catch (Exception ignored) {
         }

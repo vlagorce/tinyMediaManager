@@ -4,6 +4,8 @@ Version 2.9.8
 x fix IMDB language and release date parsing
 x fix parsing audio channel information 
 x fix naming detection for 4k files
+x fix Kodi scraper plugins unicode decoding
+x improve Kodi scraper plugins http requests (correct headers)
 
 
 Version 2.9.7

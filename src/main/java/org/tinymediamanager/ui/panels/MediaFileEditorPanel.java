@@ -53,7 +53,9 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
+import org.tinymediamanager.ui.DoubleInputVerifier;
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.IntegerInputVerifier;
 import org.tinymediamanager.ui.UTF8Control;
 
 import com.jgoodies.forms.layout.ColumnSpec;
@@ -91,6 +93,7 @@ public class MediaFileEditorPanel extends JPanel {
   private JTableBinding<MediaFileSubtitle, JTable, JTable>                    jTableBinding_2;
   private JTableBinding<MediaFileAudioStream, JTable, JTable>                 jTableBinding_1;
   private JTableBinding<MediaFileContainer, List<MediaFileContainer>, JTable> jTableBinding;
+  private JTextField                                                          tfFrameRate;
 
   public MediaFileEditorPanel(List<MediaFile> mediaFiles) {
     this.mediaFiles = ObservableCollections.observableList(new ArrayList<MediaFileContainer>());
@@ -120,9 +123,9 @@ public class MediaFileEditorPanel extends JPanel {
         JPanel panelDetails = new JPanel();
         splitPane.setRightComponent(panelDetails);
         panelDetails.setLayout(new FormLayout(
-            new ColumnSpec[] { FormSpecs.RELATED_GAP_COLSPEC, FormSpecs.DEFAULT_COLSPEC, FormSpecs.RELATED_GAP_COLSPEC, FormSpecs.DEFAULT_COLSPEC,
-                ColumnSpec.decode("15dlu"), FormSpecs.DEFAULT_COLSPEC, FormSpecs.RELATED_GAP_COLSPEC, FormSpecs.DEFAULT_COLSPEC,
-                FormSpecs.RELATED_GAP_COLSPEC, },
+            new ColumnSpec[] { FormSpecs.RELATED_GAP_COLSPEC, FormSpecs.DEFAULT_COLSPEC, FormSpecs.RELATED_GAP_COLSPEC,
+                ColumnSpec.decode("default:grow"), ColumnSpec.decode("15dlu"), FormSpecs.DEFAULT_COLSPEC, FormSpecs.RELATED_GAP_COLSPEC,
+                FormSpecs.DEFAULT_COLSPEC, FormSpecs.RELATED_GAP_COLSPEC, },
             new RowSpec[] { FormSpecs.RELATED_GAP_ROWSPEC, RowSpec.decode("15dlu"), FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC,
                 FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC, FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC,
                 FormSpecs.UNRELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC, FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC,
@@ -157,6 +160,7 @@ public class MediaFileEditorPanel extends JPanel {
         }
         {
           tfWidth = new JTextField();
+          tfWidth.setInputVerifier(new IntegerInputVerifier());
           panelDetails.add(tfWidth, "4, 6, fill, default");
           tfWidth.setColumns(10);
         }
@@ -166,13 +170,20 @@ public class MediaFileEditorPanel extends JPanel {
         }
         {
           tfHeight = new JTextField();
+          tfHeight.setInputVerifier(new IntegerInputVerifier());
           panelDetails.add(tfHeight, "8, 6, fill, default");
           tfHeight.setColumns(10);
         }
         {
-          JLabel lbld = new JLabel("3D Format");
-          panelDetails.add(lbld, "2, 8, right, default");
+          JLabel lblFrameRate = new JLabel(BUNDLE.getString("metatag.framerate"));
+          panelDetails.add(lblFrameRate, "2, 8, right, default");
+
+          tfFrameRate = new JTextField();
+          tfFrameRate.setInputVerifier(new DoubleInputVerifier());
+          panelDetails.add(tfFrameRate, "4, 8, fill, default");
+          tfFrameRate.setColumns(10);
         }
+
         {
           cb3dFormat = new JComboBox<>();
           cb3dFormat.addItem("");
@@ -181,7 +192,11 @@ public class MediaFileEditorPanel extends JPanel {
           cb3dFormat.addItem(MediaFile.VIDEO_3D_HSBS);
           cb3dFormat.addItem(MediaFile.VIDEO_3D_TAB);
           cb3dFormat.addItem(MediaFile.VIDEO_3D_HTAB);
-          panelDetails.add(cb3dFormat, "4, 8, fill, default");
+
+          JLabel lbld = new JLabel("3D Format");
+          panelDetails.add(lbld, "6, 8, right, default");
+
+          panelDetails.add(cb3dFormat, "8, 8, fill, default");
         }
         {
           JLabel lblAudiostreams = new JLabel("AudioStreams");
@@ -425,6 +440,9 @@ public class MediaFileEditorPanel extends JPanel {
           if (mfEditor.getVideoHeight() != mfOriginal.getVideoHeight()) {
             mfOriginal.setVideoHeight(mfEditor.getVideoHeight());
           }
+          if (mfEditor.getFrameRate() != mfOriginal.getFrameRate()) {
+            mfOriginal.setFrameRate(mfEditor.getFrameRate());
+          }
           if (!mfEditor.getVideo3DFormat().equals(mfOriginal.getVideo3DFormat())) {
             mfOriginal.setVideo3DFormat(mfEditor.getVideo3DFormat());
           }
@@ -435,6 +453,12 @@ public class MediaFileEditorPanel extends JPanel {
         }
       }
     }
+  }
+
+  public void unbindBindings() {
+    jTableBinding.unbind();
+    jTableBinding_1.unbind();
+    jTableBinding_2.unbind();
   }
 
   protected void initDataBindings() {
@@ -509,11 +533,11 @@ public class MediaFileEditorPanel extends JPanel {
     AutoBinding<JTable, String, JComboBox, Object> autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles,
         jTableBeanProperty_7, cb3dFormat, jComboBoxBeanProperty);
     autoBinding_2.bind();
-  }
-
-  public void unbindBindings() {
-    jTableBinding.unbind();
-    jTableBinding_1.unbind();
-    jTableBinding_2.unbind();
+    //
+    BeanProperty<JTable, Double> jTableBeanProperty_8 = BeanProperty.create("selectedElement.mediaFile.frameRate");
+    BeanProperty<JTextField, String> jTextFieldBeanProperty_1 = BeanProperty.create("text");
+    AutoBinding<JTable, Double, JTextField, String> autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles,
+        jTableBeanProperty_8, tfFrameRate, jTextFieldBeanProperty_1);
+    autoBinding_4.bind();
   }
 }

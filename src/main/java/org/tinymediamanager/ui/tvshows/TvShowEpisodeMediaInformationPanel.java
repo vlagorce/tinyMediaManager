@@ -60,6 +60,7 @@ public class TvShowEpisodeMediaInformationPanel extends JPanel {
   private JLabel                      lblVideoResolution;
   private JLabel                      lblVideoBitrate;
   private JLabel                      lblVideoBitDepth;
+  private JLabel                      lblFrameRate;
   private JPanel                      panelAudioStreamT;
   private JPanel                      panelAudioStreamDetails;
   private JPanel                      panelSubtitleT;
@@ -111,6 +112,9 @@ public class TvShowEpisodeMediaInformationPanel extends JPanel {
 
     lblVideoBitDepth = new JLabel("");
     panelVideoStreamDetails.add(lblVideoBitDepth);
+
+    lblFrameRate = new JLabel("");
+    panelVideoStreamDetails.add(lblFrameRate);
 
     lblSourceT = new JLabel(BUNDLE.getString("metatag.source")); //$NON-NLS-1$
     add(lblSourceT, "6, 6");
@@ -185,6 +189,7 @@ public class TvShowEpisodeMediaInformationPanel extends JPanel {
       lblVideoResolution.setText(mediaFile.getVideoResolution());
       lblVideoBitrate.setText(mediaFile.getBiteRateInKbps());
       lblVideoBitDepth.setText(mediaFile.getBitDepthString());
+      lblFrameRate.setText(String.format("%.2f fps", mediaFile.getFrameRate()));
     }
     lblSource.setText(selectionModel.getSelectedTvShowEpisode().getMediaSource().toString());
   }

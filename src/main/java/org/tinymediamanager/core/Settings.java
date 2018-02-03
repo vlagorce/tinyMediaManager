@@ -608,6 +608,7 @@ public class Settings extends AbstractModelObject {
     addAudioFileTypes(".mka");
     addAudioFileTypes(".mp3");
     addAudioFileTypes(".mpa");
+    addAudioFileTypes(".mlp");
     addAudioFileTypes(".oga");
     addAudioFileTypes(".ogg");
     addAudioFileTypes(".pcm");
@@ -615,6 +616,7 @@ public class Settings extends AbstractModelObject {
     addAudioFileTypes(".ram");
     addAudioFileTypes(".rm");
     addAudioFileTypes(".tta");
+    addAudioFileTypes(".thd");
     addAudioFileTypes(".wav");
     addAudioFileTypes(".wave");
     addAudioFileTypes(".wma");

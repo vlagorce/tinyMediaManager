@@ -1,3 +1,17 @@
+Version 2.9.8
+=======================
++ added frame rate from mediainfo
++ updated libmediainfo to 17.12
++ show result window of the "find missing movies" feature
+x fix IMDB language, release date and episode thumb parsing
+x fix parsing audio channel information
+x fix naming detection for 4k files
+x fix Kodi scraper plugins unicode decoding
+x improve Kodi scraper plugins http requests (correct headers)
+x added more java 9 compatibility options
+x fixed cancelling of actor image downloads
+x added 2160p to file name cleanup
+
 Version 2.9.7
 =======================
 + added DataTables export template - thx to @C. Janke

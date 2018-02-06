@@ -847,8 +847,9 @@ public class TvShowRenamer {
 
     // DEFAULT CLEANUP
     // replace empty brackets
-    newDestination = newDestination.replaceAll("\\(\\)", "");
-    newDestination = newDestination.replaceAll("\\[\\]", "");
+    newDestination = newDestination.replaceAll("\\([ ]?\\)", "");
+    newDestination = newDestination.replaceAll("\\[[ ]?\\]", "");
+    newDestination = newDestination.replaceAll("\\{[ ]?\\}", "");
 
     // if there are multiple file separators in a row - strip them out
     if (SystemUtils.IS_OS_WINDOWS) {

@@ -25,6 +25,8 @@ public class TvShowRenamerTest extends BasicTest {
 
   @Test
   public void tvRenamerPatterns() {
+    assertEqual(p("/singleshow (2009)/Season 1/E02 - singleEP.avi"), gen(single, "$N ($Y)", "Season $1", "E$E () ( ) [] [ ] {} { } - $T", true));
+
     // SINGLE - RECOMMENDED
     assertEqual(p("/singleshow (2009)/Season 1/singleshow - S01E02 - singleEP.avi"), gen(single, "$N ($Y)", "Season $1", "$N - S$2E$E - $T", true));
     assertEqual(p("/singleshow (2009)/Season 1/E02 - singleEP.avi"), gen(single, "$N ($Y)", "Season $1", "E$E - $T", true));
@@ -47,6 +49,9 @@ public class TvShowRenamerTest extends BasicTest {
     // *******************
     // COPY 1:1 FROM ABOVE
     // *******************
+
+    assertEqual(p("/multishow (2009)/Season 1/E02 E03 - multiEP2 - multiEP3.avi"),
+        gen(multi, "$N ($Y)", "Season $1", "E$E () ( ) [] [ ] {} { } - $T", true));
 
     // MULTI - RECOMMENDED
     assertEqual(p("/multishow (2009)/Season 1/multishow - S01E02 S01E03 - multiEP2 - multiEP3.avi"),

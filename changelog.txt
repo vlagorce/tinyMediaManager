@@ -1,3 +1,7 @@
+Version 2.9.9
+=======================
+x fix opening of dialogs without parents
+
 Version 2.9.8
 =======================
 + added frame rate from mediainfo

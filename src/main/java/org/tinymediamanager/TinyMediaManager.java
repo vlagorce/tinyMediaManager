@@ -347,10 +347,6 @@ public class TinyMediaManager {
               splash.update();
             }
 
-            // write a random number to file, to identify this instance (for
-            // updater, tracking, whatsoever)
-            Utils.trackEvent("startup");
-
             TmmWindowSaver.getInstance().loadSettings(window);
             window.setVisible(true);
 
@@ -365,7 +361,6 @@ public class TinyMediaManager {
             // show changelog
             if (newVersion && !ReleaseInfo.getVersion().equals(oldVersion)) {
               // special case nightly/git: if same snapshot version, do not display changelog
-              Utils.trackEvent("updated");
               showChangelog();
             }
           }

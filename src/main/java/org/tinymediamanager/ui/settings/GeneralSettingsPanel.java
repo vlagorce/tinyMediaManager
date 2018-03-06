@@ -360,26 +360,9 @@ public class GeneralSettingsPanel extends ScrollablePanel {
     cbImageCacheQuality = new JComboBox(ImageCache.CacheType.values());
     panelCache.add(cbImageCacheQuality, "4, 4, fill, default");
 
-    JPanel panelAnalytics = new JPanel();
-    panelAnalytics
-        .setBorder(new TitledBorder(null, BUNDLE.getString("Settings.analytics.border"), TitledBorder.LEADING, TitledBorder.TOP, null, null)); //$NON-NLS-1$
-    add(panelAnalytics, "2, 8, fill, fill");
-    panelAnalytics.setLayout(
-        new FormLayout(new ColumnSpec[] { FormSpecs.RELATED_GAP_COLSPEC, ColumnSpec.decode("default:grow"), FormSpecs.RELATED_GAP_COLSPEC, },
-            new RowSpec[] { FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC, FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC,
-                FormSpecs.LINE_GAP_ROWSPEC, }));
-
-    chckbxAnalytics = new JCheckBox(BUNDLE.getString("Settings.analytics"));//$NON-NLS-1$
-    panelAnalytics.add(chckbxAnalytics, "2, 2");
-
-    JTextPane tpAnalyticsDescription = new JTextPane();
-    tpAnalyticsDescription.setText(BUNDLE.getString("Settings.analytics.desc"));//$NON-NLS-1$
-    tpAnalyticsDescription.setOpaque(false);
-    panelAnalytics.add(tpAnalyticsDescription, "2, 4, fill, fill");
-
     JPanel panelMisc = new JPanel();
     panelMisc.setBorder(new TitledBorder(null, BUNDLE.getString("Settings.misc"), TitledBorder.LEADING, TitledBorder.TOP, null, null)); //$NON-NLS-1$
-    add(panelMisc, "4, 8, fill, fill");
+    add(panelMisc, "2, 8, fill, fill");
     panelMisc.setLayout(new FormLayout(
         new ColumnSpec[] { FormFactory.RELATED_GAP_COLSPEC, FormFactory.DEFAULT_COLSPEC, FormFactory.RELATED_GAP_COLSPEC,
             ColumnSpec.decode("default:grow"), FormFactory.RELATED_GAP_COLSPEC, },
@@ -611,10 +594,5 @@ public class GeneralSettingsPanel extends ScrollablePanel {
     AutoBinding<JSlider, Integer, JLabel, String> autoBinding_11 = Bindings.createAutoBinding(UpdateStrategy.READ, sliderMemory, jSliderBeanProperty,
         lblMemory, jLabelBeanProperty);
     autoBinding_11.bind();
-    //
-    BeanProperty<Settings, Boolean> settingsBeanProperty_4 = BeanProperty.create("enableAnalytics");
-    AutoBinding<Settings, Boolean, JCheckBox, Boolean> autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty_4, chckbxAnalytics, jCheckBoxBeanProperty);
-    autoBinding_4.bind();
   }
 }

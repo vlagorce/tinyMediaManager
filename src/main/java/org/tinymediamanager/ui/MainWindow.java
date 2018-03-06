@@ -495,7 +495,6 @@ public class MainWindow extends JFrame {
     if (confirm == JOptionPane.YES_OPTION) {
       LOGGER.info("bye bye");
       try {
-        Utils.trackEvent("shutdown");
         // shutdown UPNP stack
         Upnp.getInstance().shutdown();
         // send shutdown signal

@@ -662,11 +662,21 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
       activeSearchTask.cancel();
     }
     super.dispose();
-    jTableBinding.unbind();
-    autoBinding.unbind();
-    autoBinding_1.unbind();
-    autoBinding_2.unbind();
-    autoBinding_3.unbind();
+    if (jTableBinding.isBound()) {
+      jTableBinding.unbind();
+    }
+    if (autoBinding.isBound()) {
+      autoBinding.unbind();
+    }
+    if (autoBinding_1.isBound()) {
+      autoBinding_1.unbind();
+    }
+    if (autoBinding_2.isBound()) {
+      autoBinding_2.unbind();
+    }
+    if (autoBinding_3.isBound()) {
+      autoBinding_3.unbind();
+    }
   }
 
   /******************************************************************************

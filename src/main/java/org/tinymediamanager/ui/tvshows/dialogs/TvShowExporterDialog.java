@@ -67,22 +67,28 @@ import com.jgoodies.forms.layout.RowSpec;
  * @author Manuel Laggner
  */
 public class TvShowExporterDialog extends TmmDialog {
-  private static final long           serialVersionUID = -2197076428245222349L;
+  private static final long                                         serialVersionUID = -2197076428245222349L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
-  private static final Logger         LOGGER           = LoggerFactory.getLogger(TvShowExporterDialog.class);
+  private static final ResourceBundle                               BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  private static final Logger                                       LOGGER           = LoggerFactory.getLogger(TvShowExporterDialog.class);
 
-  private static final String         DIALOG_ID        = "tvShowExporter";
+  private static final String                                       DIALOG_ID        = "tvShowExporter";
 
-  private List<TvShow>                tvShows;
-  private List<ExportTemplate>        templatesFound;
+  private List<TvShow>                                              tvShows;
+  private List<ExportTemplate>                                      templatesFound;
 
-  private JTextField                  tfExportDir;
-  private JList                       list;
-  private JLabel                      lblTemplateName;
-  private JLabel                      lblUrl;
-  private JTextPane                   tpDescription;
-  private JCheckBox                   chckbxTemplateWithDetail;
+  private JTextField                                                tfExportDir;
+  private JList                                                     list;
+  private JLabel                                                    lblTemplateName;
+  private JLabel                                                    lblUrl;
+  private JTextPane                                                 tpDescription;
+  private JCheckBox                                                 chckbxTemplateWithDetail;
+
+  private JListBinding<ExportTemplate, List<ExportTemplate>, JList> jListBinding;
+  private AutoBinding<JList, String, JLabel, String>                autoBinding;
+  private AutoBinding<JList, String, JLabel, String>                autoBinding_1;
+  private AutoBinding<JList, String, JTextPane, String>             autoBinding_2;
+  private AutoBinding<JList, Boolean, JCheckBox, Boolean>           autoBinding_3;
 
   /**
    * Create the dialog.
@@ -233,8 +239,7 @@ public class TvShowExporterDialog extends TmmDialog {
    * Inits the data bindings.
    */
   protected void initDataBindings() {
-    JListBinding<ExportTemplate, List<ExportTemplate>, JList> jListBinding = SwingBindings.createJListBinding(UpdateStrategy.READ, templatesFound,
-        list);
+    jListBinding = SwingBindings.createJListBinding(UpdateStrategy.READ, templatesFound, list);
     //
     BeanProperty<ExportTemplate, String> exportTemplateBeanProperty = BeanProperty.create("name");
     jListBinding.setDetailBinding(exportTemplateBeanProperty);
@@ -243,25 +248,42 @@ public class TvShowExporterDialog extends TmmDialog {
     //
     BeanProperty<JList, String> jListBeanProperty = BeanProperty.create("selectedElement.name");
     BeanProperty<JLabel, String> jLabelBeanProperty = BeanProperty.create("text");
-    AutoBinding<JList, String, JLabel, String> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, list, jListBeanProperty, lblTemplateName,
-        jLabelBeanProperty);
+    autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, list, jListBeanProperty, lblTemplateName, jLabelBeanProperty);
     autoBinding.bind();
     //
     BeanProperty<JList, String> jListBeanProperty_1 = BeanProperty.create("selectedElement.url");
-    AutoBinding<JList, String, JLabel, String> autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ, list, jListBeanProperty_1, lblUrl,
-        jLabelBeanProperty);
+    autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ, list, jListBeanProperty_1, lblUrl, jLabelBeanProperty);
     autoBinding_1.bind();
     //
     BeanProperty<JList, String> jListBeanProperty_2 = BeanProperty.create("selectedElement.description");
     BeanProperty<JTextPane, String> jTextPaneBeanProperty = BeanProperty.create("text");
-    AutoBinding<JList, String, JTextPane, String> autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ, list, jListBeanProperty_2,
-        tpDescription, jTextPaneBeanProperty);
+    autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ, list, jListBeanProperty_2, tpDescription, jTextPaneBeanProperty);
     autoBinding_2.bind();
     //
     BeanProperty<JList, Boolean> jListBeanProperty_3 = BeanProperty.create("selectedElement.detail");
     BeanProperty<JCheckBox, Boolean> jCheckBoxBeanProperty = BeanProperty.create("selected");
-    AutoBinding<JList, Boolean, JCheckBox, Boolean> autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ, list, jListBeanProperty_3,
-        chckbxTemplateWithDetail, jCheckBoxBeanProperty);
+    autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ, list, jListBeanProperty_3, chckbxTemplateWithDetail, jCheckBoxBeanProperty);
     autoBinding_3.bind();
+  }
+
+  @Override
+  public void dispose() {
+    super.dispose();
+
+    if (jListBinding.isBound()) {
+      jListBinding.unbind();
+    }
+    if (autoBinding.isBound()) {
+      autoBinding.unbind();
+    }
+    if (autoBinding_1.isBound()) {
+      autoBinding_1.unbind();
+    }
+    if (autoBinding_2.isBound()) {
+      autoBinding_2.unbind();
+    }
+    if (autoBinding_3.isBound()) {
+      autoBinding_3.unbind();
+    }
   }
 }

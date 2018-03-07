@@ -730,8 +730,12 @@ public class TvShowEpisodeEditorDialog extends TmmDialog implements ActionListen
   @Override
   public void dispose() {
     super.dispose();
-    jTableBinding.unbind();
-    jListBinding.unbind();
+    if (jTableBinding.isBound()) {
+      jTableBinding.unbind();
+    }
+    if (jListBinding.isBound()) {
+      jListBinding.unbind();
+    }
     mediaFilesPanel.unbindBindings();
     dpFirstAired.cleanup();
   }

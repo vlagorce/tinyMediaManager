@@ -2,6 +2,7 @@ Version 2.9.9
 =======================
 + removed usage of Google Analytics
 x fix opening of dialogs without parents
+x fix occasional errors on closing
 
 Version 2.9.8
 =======================

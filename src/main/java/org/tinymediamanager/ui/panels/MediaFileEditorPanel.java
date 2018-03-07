@@ -456,9 +456,15 @@ public class MediaFileEditorPanel extends JPanel {
   }
 
   public void unbindBindings() {
-    jTableBinding.unbind();
-    jTableBinding_1.unbind();
-    jTableBinding_2.unbind();
+    if (jTableBinding.isBound()) {
+      jTableBinding.unbind();
+    }
+    if (jTableBinding_1.isBound()) {
+      jTableBinding_1.unbind();
+    }
+    if (jTableBinding_2.isBound()) {
+      jTableBinding_2.unbind();
+    }
   }
 
   protected void initDataBindings() {

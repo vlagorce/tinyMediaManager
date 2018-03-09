@@ -22,7 +22,7 @@ package org.tinymediamanager.core;
  */
 public final class Constants {
   public final static String BACKUP_FOLDER          = ".deletedByTMM";
-  public final static String LOCALE_FOLDER          = "locale";
+  public final static String TEMP_FOLDER            = "tmp";
 
   public final static String ACTORS                 = "actors";
   public final static String ADDED_EPISODE          = "addedEpisode";
@@ -90,6 +90,8 @@ public final class Constants {
   public final static String SEASON                 = "season";
   public final static String SEASON_COUNT           = "seasonCount";
   public final static String SEASON_POSTER          = "seasonPoster";
+  public final static String SEASON_BANNER          = "seasonBanner";
+  public final static String SEASON_THUMB           = "seasonThumb";
   public final static String SORT_TITLE             = "sortTitle";
   public final static String SPOKEN_LANGUAGES       = "spokenLanguages";
   public final static String STATUS                 = "status";

@@ -3,23 +3,10 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <repositories>
-        <repository>
-            <id>snapshots-repo</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
     <parent>
         <groupId>org.tinymediamanager</groupId>
         <artifactId>tmm-parent</artifactId>
-        <version>1.0</version>
+        <version>3.0</version>
     </parent>
 
     <artifactId>tinyMediaManager</artifactId>
@@ -35,9 +22,6 @@
 
     <properties>
         <transifexURL>https://www.transifex.com/api/2/project/tinymediamanager/resource/</transifexURL>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <surefire-plugin.version>2.19.1</surefire-plugin.version>
     </properties>
 
     <dependencies>
@@ -129,15 +113,16 @@
             <artifactId>scraper-zelluloid</artifactId>
             <version>3.0-SNAPSHOT</version>
         </dependency>
+
         <dependency>
             <groupId>org.tinymediamanager</groupId>
             <artifactId>kodi-json-rpc</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.uwetrottmann.trakt5</groupId>
             <artifactId>trakt-java</artifactId>
-            <version>5.5.1</version>
+            <version>5.8.0</version>
         </dependency>
         <dependency>
             <groupId>it.tidalwave.betterbeansbinding</groupId>
@@ -326,22 +311,8 @@
                         </goals>
                         <configuration>
                             <excludeGroupIds>org.tinymediamanager.plugins</excludeGroupIds>
-                            <excludeArtifactIds>retrofit</excludeArtifactIds>
                             <includeScope>runtime</includeScope>
                             <stripVersion>true</stripVersion>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <!-- workaround for 2 same named retrofit dependencies -->
-                        <id>copy-retrofit</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <includeArtifactIds>retrofit</includeArtifactIds>
-                            <includeScope>runtime</includeScope>
-                            <stripVersion>false</stripVersion>
                         </configuration>
                     </execution>
                     <execution>

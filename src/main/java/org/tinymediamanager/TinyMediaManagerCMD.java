@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.ExportTemplate;
 import org.tinymediamanager.core.MediaEntityExporter.TemplateType;
 import org.tinymediamanager.core.UpdaterTask;
-import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieExporter;
 import org.tinymediamanager.core.movie.MovieList;
@@ -42,7 +41,7 @@ import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.tasks.MovieRenameTask;
 import org.tinymediamanager.core.movie.tasks.MovieScrapeTask;
-import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask2;
+import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowExporter;
@@ -54,7 +53,7 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.tasks.TvShowEpisodeScrapeTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowRenameTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowScrapeTask;
-import org.tinymediamanager.core.tvshow.tasks.TvShowUpdateDatasourceTask2;
+import org.tinymediamanager.core.tvshow.tasks.TvShowUpdateDatasourceTask;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
 /**
@@ -246,8 +245,6 @@ public class TinyMediaManagerCMD {
       if (scrapeNew || scrapeUnscraped || scrapeAll) {
         // only do an update check when we are scraping online
         // no need for a "forced" check for just updating the datasource
-        Utils.trackEvent("cmd");
-
         final SwingWorker<Boolean, Void> updateWorker = new UpdaterTask();
         updateWorker.run();
         updateAvailable = updateWorker.get(); // blocking
@@ -277,14 +274,14 @@ public class TinyMediaManagerCMD {
       if (updateMovies) {
         LOGGER.info("Commandline - updating movies...");
         if (updateMovieDs.isEmpty()) {
-          task = new MovieUpdateDatasourceTask2();
+          task = new MovieUpdateDatasourceTask();
           task.run(); // blocking
         }
         else {
           List<String> dataSources = new ArrayList<>(MovieModuleManager.SETTINGS.getMovieDataSource());
           for (Integer i : updateMovieDs) {
             if (dataSources != null && dataSources.size() >= i - 1) {
-              task = new MovieUpdateDatasourceTask2(dataSources.get(i - 1));
+              task = new MovieUpdateDatasourceTask(dataSources.get(i - 1));
               task.run(); // blocking
             }
           }
@@ -392,14 +389,14 @@ public class TinyMediaManagerCMD {
       if (updateTv) {
         LOGGER.info("Commandline - updating TvShows and episodes...");
         if (updateTvDs.isEmpty()) {
-          task = new TvShowUpdateDatasourceTask2();
+          task = new TvShowUpdateDatasourceTask();
           task.run(); // blocking
         }
         else {
           List<String> dataSources = new ArrayList<>(TvShowModuleManager.SETTINGS.getTvShowDataSource());
           for (Integer i : updateTvDs) {
             if (dataSources != null && dataSources.size() >= i - 1) {
-              task = new TvShowUpdateDatasourceTask2(dataSources.get(i - 1));
+              task = new TvShowUpdateDatasourceTask(dataSources.get(i - 1));
               task.run(); // blocking
             }
           }

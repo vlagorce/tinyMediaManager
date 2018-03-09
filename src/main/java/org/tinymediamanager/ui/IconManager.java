@@ -118,6 +118,7 @@ public class IconManager {
   public final static ImageIcon            STOP_INV                    = createFontAwesomeIcon('\uF04D', true);
 
   // font awesome icons - column headers
+  public final static ImageIcon            AUDIO                       = createFontAwesomeIcon('\uF028', 16);
   public final static ImageIcon            COUNT                       = createFontAwesomeIcon('\uF292', 16);
   public final static ImageIcon            DATE_ADDED                  = createFontAwesomeIcon('\uF271', 16);
   public final static ImageIcon            EPISODES                    = createTextIcon("E", 18);
@@ -129,6 +130,7 @@ public class IconManager {
   public final static ImageIcon            SEASONS                     = createTextIcon("S", 18);
   public final static ImageIcon            SUBTITLES                   = createFontAwesomeIcon('\uF086', 16);
   public final static ImageIcon            TRAILER                     = createFontAwesomeIcon('\uF008', 16);
+  public final static ImageIcon            VIDEO_3D                    = createFontAwesomeIcon('\uF1B2', 16);
   public final static ImageIcon            VIDEO_FORMAT                = createFontAwesomeIcon('\uF320', 16);
   public final static ImageIcon            WATCHED                     = createFontAwesomeIcon('\uF04B', 16);
 

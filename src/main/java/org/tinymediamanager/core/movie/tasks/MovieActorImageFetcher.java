@@ -15,99 +15,29 @@
  */
 package org.tinymediamanager.core.movie.tasks;
 
-import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.HashSet;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.ImageCache;
-import org.tinymediamanager.core.Utils;
-import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.movie.entities.Movie;
-import org.tinymediamanager.scraper.util.UrlUtil;
+import org.tinymediamanager.core.tasks.MediaEntityActorImageFetcher;
 
 /**
  * The Class MovieActorImageFetcher.
  * 
  * @author Manuel Laggner
  */
-public class MovieActorImageFetcher implements Runnable {
-
+public class MovieActorImageFetcher extends MediaEntityActorImageFetcher {
   private final static Logger LOGGER = LoggerFactory.getLogger(MovieActorImageFetcher.class);
 
-  private Movie               movie;
-
   public MovieActorImageFetcher(Movie movie) {
-    this.movie = movie;
+    this.mediaEntity = movie;
+
+    persons = new HashSet<>(movie.getActors());
   }
 
   @Override
-  public void run() {
-    // try/catch block in the root of the thread to log crashes
-    try {
-
-      // check if actors folder exists
-      Path actorsDir = movie.getPathNIO().resolve(Person.ACTOR_DIR);
-      if (!Files.isDirectory(actorsDir)) {
-        Files.createDirectory(actorsDir);
-      }
-
-      // first check which actors images can be deleted
-      try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(actorsDir)) {
-        for (Path path : directoryStream) {
-          if (Utils.isRegularFile(path) && path.getFileName().toString().matches("(?i).*\\.(tbn|png|jpg)")
-              && !path.getFileName().toString().startsWith(".")) {
-            boolean found = false;
-            // check if there is an actor for this file
-            String actorImage = FilenameUtils.getBaseName(path.getFileName().toString()).replace("_", " ");
-            for (Person actor : movie.getActors()) {
-              if (actor.getName().equals(actorImage)) {
-                found = true;
-
-                // trick it to get rid of wrong extensions
-                if (!FilenameUtils.getExtension(path.getFileName().toString()).equalsIgnoreCase(UrlUtil.getExtension(actor.getThumbUrl()))) {
-                  found = false;
-                }
-                break;
-              }
-            }
-            // delete image if not found
-            if (!found) {
-              Utils.deleteFileWithBackup(path, movie.getDataSource());
-            }
-          }
-        }
-      }
-      catch (IOException ignored) {
-      }
-
-      // second download missing images
-      for (Person actor : movie.getActors()) {
-        String actorImageFilename = actor.getNameForStorage();
-        if (StringUtils.isBlank(actorImageFilename)) {
-          continue;
-        }
-        Path actorImage = Paths.get(movie.getPath(), Person.ACTOR_DIR, actorImageFilename);
-
-        if (actorImage != null && StringUtils.isNotEmpty(actor.getThumbUrl()) && !Files.exists(actorImage)) {
-          Path cache = ImageCache.getCachedFile(actor.getThumbUrl());
-          if (cache != null) {
-            Utils.copyFileSafe(cache, actorImage);
-          }
-        }
-        // else {
-        // LOGGER.warn("Cannot download actor image " + actor);
-        // }
-      }
-
-    }
-    catch (Exception e) {
-      LOGGER.error("Thread crashed: ", e);
-    }
+  protected Logger getLogger() {
+    return LOGGER;
   }
 }

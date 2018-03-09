@@ -14,7 +14,7 @@ import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmModuleManager;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.movie.entities.Movie;
-import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask2;
+import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask;
 
 /**
  * This class cannot run, since Settings() is STATIC<br>
@@ -25,7 +25,7 @@ import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask2;
  */
 public class MovieUpdateDatasourceTaskTest extends BasicTest {
 
-  private static final int NUMBER_OF_EXPECTED_MOVIES = 51;
+  private static final int NUMBER_OF_EXPECTED_MOVIES = 54;
   private static final int NUMBER_OF_STACKED_MOVIES  = 12;
   private static final int NUMBER_OF_DISC_MOVIES     = 6;
 
@@ -56,7 +56,7 @@ public class MovieUpdateDatasourceTaskTest extends BasicTest {
 
   @Test
   public void udsNew() throws Exception {
-    MovieUpdateDatasourceTask2 task = new MovieUpdateDatasourceTask2();
+    MovieUpdateDatasourceTask task = new MovieUpdateDatasourceTask();
     task.run();
     showEntries();
   }

@@ -31,7 +31,9 @@ import static org.tinymediamanager.core.Constants.FIRST_AIRED_AS_STRING;
 import static org.tinymediamanager.core.Constants.HAS_NFO_FILE;
 import static org.tinymediamanager.core.Constants.MEDIA_SOURCE;
 import static org.tinymediamanager.core.Constants.SEASON;
+import static org.tinymediamanager.core.Constants.SEASON_BANNER;
 import static org.tinymediamanager.core.Constants.SEASON_POSTER;
+import static org.tinymediamanager.core.Constants.SEASON_THUMB;
 import static org.tinymediamanager.core.Constants.TAG;
 import static org.tinymediamanager.core.Constants.TAGS_AS_STRING;
 import static org.tinymediamanager.core.Constants.TITLE_FOR_UI;
@@ -64,7 +66,6 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.IMediaInformation;
-import org.tinymediamanager.core.MediaEntityImageFetcherTask;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.Utils;
@@ -72,6 +73,7 @@ import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.entities.Rating;
+import org.tinymediamanager.core.tasks.MediaEntityImageFetcherTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowMediaFileComparator;
@@ -424,6 +426,11 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     return tvShowId;
   }
 
+  @Override
+  public String getDataSource() {
+    return tvShow.getDataSource();
+  }
+
   public int getEpisode() {
     if (isDvdOrder) {
       return dvdEpisode;
@@ -516,9 +523,12 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       rating = ratings.get(TvShowModuleManager.SETTINGS.getPreferredRating());
     }
 
-    // the NFO rating
+    // then the default one (either NFO or DEFAULT)
     if (rating == null) {
       rating = ratings.get(Rating.NFO);
+    }
+    if (rating == null) {
+      rating = ratings.get(Rating.DEFAULT);
     }
 
     // is there any rating?
@@ -1124,10 +1134,25 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   }
 
   /**
-   * Event to trigger a season poster changed for the UI
+   * Event to trigger a season artwork changed for the UI
    */
-  void setPosterChanged() {
-    firePropertyChange(SEASON_POSTER, null, "");
+  void setSeasonArtworkChanged(MediaArtworkType type) {
+    switch (type) {
+      case SEASON_POSTER:
+        firePropertyChange(SEASON_POSTER, null, "");
+        break;
+
+      case SEASON_BANNER:
+        firePropertyChange(SEASON_BANNER, null, "");
+        break;
+
+      case SEASON_THUMB:
+        firePropertyChange(SEASON_THUMB, null, "");
+        break;
+
+      default:
+        break;
+    }
   }
 
   /**
@@ -1397,19 +1422,14 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   }
 
   @Override
-  public int getMediaInfoAudioChannels() {
+  public String getMediaInfoAudioChannels() {
     List<MediaFile> videos = getMediaFiles(MediaFileType.VIDEO);
     if (videos.size() > 0) {
       MediaFile mediaFile = videos.get(0);
-      try {
-        String channels = mediaFile.getAudioChannels().replace("ch", "");
-        return Integer.parseInt(channels);
-      }
-      catch (NumberFormatException ignored) {
-      }
+      return mediaFile.getAudioChannels();
     }
 
-    return 0;
+    return "";
   }
 
   @Override

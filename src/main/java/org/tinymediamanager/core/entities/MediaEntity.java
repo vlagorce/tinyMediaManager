@@ -16,6 +16,7 @@
 package org.tinymediamanager.core.entities;
 
 import static org.tinymediamanager.core.Constants.BANNER;
+import static org.tinymediamanager.core.Constants.DATA_SOURCE;
 import static org.tinymediamanager.core.Constants.DATE_ADDED;
 import static org.tinymediamanager.core.Constants.DATE_ADDED_AS_STRING;
 import static org.tinymediamanager.core.Constants.FANART;
@@ -58,6 +59,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 
@@ -71,6 +73,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public abstract class MediaEntity extends AbstractModelObject {
   /** The id for the database. */
   protected UUID                       dbId              = UUID.randomUUID();
+
+  @JsonProperty
+  protected String                     dataSource        = "";
 
   /** The ids to store the ID from several metadataproviders. */
   @JsonProperty
@@ -194,6 +199,27 @@ public abstract class MediaEntity extends AbstractModelObject {
   }
 
   /**
+   * Gets the data source.
+   *
+   * @return the data source
+   */
+  public String getDataSource() {
+    return dataSource;
+  }
+
+  /**
+   * Sets the data source.
+   *
+   * @param newValue
+   *          the new data source
+   */
+  public void setDataSource(String newValue) {
+    String oldValue = this.dataSource;
+    this.dataSource = newValue;
+    firePropertyChange(DATA_SOURCE, oldValue, newValue);
+  }
+
+  /**
    * get all ID for this object. These are the IDs from the various scraper
    * 
    * @return a map of all IDs
@@ -299,9 +325,12 @@ public abstract class MediaEntity extends AbstractModelObject {
     // the user rating
     rating = ratings.get(Rating.USER);
 
-    // then the default one
+    // then the default one (either NFO or DEFAULT)
     if (rating == null) {
       rating = ratings.get(Rating.NFO);
+    }
+    if (rating == null) {
+      rating = ratings.get(Rating.DEFAULT);
     }
 
     // is there any rating?
@@ -875,6 +904,11 @@ public abstract class MediaEntity extends AbstractModelObject {
     List<MediaFile> mfs = new ArrayList<>(this.mediaFiles);
     readWriteLock.readLock().unlock();
     for (MediaFile mf : mfs) {
+      // invalidate image cache
+      if (mf.isGraphic()) {
+        ImageCache.invalidateCachedImage(mf.getFileAsPath());
+      }
+
       mf.replacePathForRenamedFolder(oldPath, newPath);
     }
   }

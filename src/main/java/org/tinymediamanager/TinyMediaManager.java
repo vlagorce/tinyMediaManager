@@ -66,7 +66,7 @@ import org.tinymediamanager.ui.UTF8Control;
 import org.tinymediamanager.ui.dialogs.MessageDialog;
 import org.tinymediamanager.ui.dialogs.WhatsNewDialog;
 import org.tinymediamanager.ui.plaf.TmmTheme;
-import org.tinymediamanager.ui.plaf.light.TmmLightLookAndFeel;
+import org.tinymediamanager.ui.plaf.dark.TmmDarkLookAndFeel;
 import org.tinymediamanager.ui.wizard.TinyMediaManagerWizard;
 
 import com.sun.jna.Platform;
@@ -530,8 +530,10 @@ public class TinyMediaManager {
         // String laf = "com.jtattoo.plaf.luna.LunaLookAndFeel";
 
         // Get the look and feel class name
-        TmmLightLookAndFeel.setTheme(props);
-        String laf = "org.tinymediamanager.ui.plaf.light.TmmLightLookAndFeel";
+        // TmmLightLookAndFeel.setTheme(props);
+        // String laf = "org.tinymediamanager.ui.plaf.light.TmmLightLookAndFeel";
+        TmmDarkLookAndFeel.setTheme(props);
+        String laf = "org.tinymediamanager.ui.plaf.dark.TmmDarkLookAndFeel";
 
         // Install the look and feel
         UIManager.setLookAndFeel(laf);

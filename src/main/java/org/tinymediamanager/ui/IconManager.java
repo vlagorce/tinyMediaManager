@@ -22,6 +22,7 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
@@ -33,6 +34,7 @@ import javax.swing.UIManager;
 import org.tinymediamanager.Globals;
 
 public class IconManager {
+  private static final Font                FONT_AWESOME                = loadFontAwesome();
   private final static Map<URI, ImageIcon> ICON_CACHE                  = new HashMap<>();
   private final static int                 DEFAULT_FONT_SIZE           = Globals.settings.getFontSize();
   private final static Color               ICON_COLOR                  = new Color(45, 121, 162);
@@ -129,6 +131,18 @@ public class IconManager {
   public final static ImageIcon            TRAILER                     = createFontAwesomeIcon('\uF008', 16);
   public final static ImageIcon            VIDEO_FORMAT                = createFontAwesomeIcon('\uF320', 16);
   public final static ImageIcon            WATCHED                     = createFontAwesomeIcon('\uF04B', 16);
+
+  private static Font loadFontAwesome() {
+    Font fontAwesome = null;
+    try {
+      InputStream fontStream = IconManager.class.getResource("fontawesome-pro-regular-400.ttf").openStream();
+      fontAwesome = Font.createFont(Font.TRUETYPE_FONT, fontStream);
+      fontStream.close();
+    }
+    catch (Exception ignored) {
+    }
+    return fontAwesome;
+  }
 
   public static ImageIcon loadImage(String name) {
     URL file = IconManager.class.getResource("images/interface/" + name);
@@ -283,7 +297,10 @@ public class IconManager {
    * @return the generated icon
    */
   public static ImageIcon createFontAwesomeIcon(char iconId, int size, Color color) {
-    Font font = new Font("Font Awesome 5 Pro Regular", Font.PLAIN, size);
+    if (FONT_AWESOME == null) {
+      return EMPTY_IMAGE;
+    }
+    Font font = FONT_AWESOME.deriveFont((float) size);
     return createFontIcon(font, String.valueOf(iconId), color);
   }
 

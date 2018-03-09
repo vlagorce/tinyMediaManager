@@ -16,7 +16,10 @@
 
 package org.tinymediamanager.ui;
 
+import java.awt.Color;
 import java.awt.Insets;
+
+import javax.swing.UIManager;
 
 /**
  * helper class for holding UI relevant constants
@@ -29,4 +32,14 @@ public class UIConstants {
    */
   public static final Insets SMALL_BUTTON_MARGIN = new Insets(2, 2, 2, 2);
 
+  public static final Color  LINK_COLOR          = getLinkColor();
+
+  private static Color getLinkColor() {
+    Color linkColor = UIManager.getColor("Link.Foreground");
+    if (linkColor == null) {
+      // fallback
+      linkColor = Color.WHITE; // new Color(40, 123, 222)
+    }
+    return linkColor;
+  }
 }

@@ -15,7 +15,6 @@
  */
 package org.tinymediamanager.ui.components.table;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.ComponentOrientation;
 import java.awt.Container;
@@ -65,9 +64,6 @@ public class TmmTable extends JTable {
   private static final long             serialVersionUID  = 6150939811851709115L;
   private static final ResourceBundle   BUNDLE            = ResourceBundle.getBundle("messages", new UTF8Control());
 
-  protected static final Color          TABLE_GRID_COLOR  = new Color(211, 211, 211);
-  protected static final Color          TABLE_GRID_COLOR2 = new Color(248, 248, 248);
-
   private static final CellRendererPane CELL_RENDER_PANE  = new CellRendererPane();
 
   public TmmTable() {
@@ -108,7 +104,7 @@ public class TmmTable extends JTable {
     getTableHeader().setOpaque(false);
     setOpaque(false);
     setRowHeight(22);
-    setGridColor(TABLE_GRID_COLOR);
+    // setGridColor(TABLE_GRID_COLOR);
     setIntercellSpacing(new Dimension(0, 0));
     // turn off grid painting as we'll handle this manually in order to paint grid lines over the entire viewport.
     setShowGrid(false);
@@ -312,7 +308,7 @@ public class TmmTable extends JTable {
       scrollPane.setViewport(new TmmViewport(this, columnsWithoutRightVerticalGrid));
       scrollPane.getViewport().setView(this);
     }
-    scrollPane.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, TABLE_GRID_COLOR));
+    // scrollPane.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, TABLE_GRID_COLOR));
     scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
   }
 
@@ -325,7 +321,7 @@ public class TmmTable extends JTable {
 
       // This call is needed because DefaultTableCellRenderer calls setBorder()
       // in its constructor, which is executed after updateUI()
-      setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, TABLE_GRID_COLOR));
+      // setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, TABLE_GRID_COLOR));
     }
 
     @Override

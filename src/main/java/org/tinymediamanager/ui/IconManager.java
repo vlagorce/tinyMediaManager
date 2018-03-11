@@ -15,11 +15,16 @@
  */
 package org.tinymediamanager.ui;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
+import java.awt.RenderingHints;
 import java.awt.Toolkit;
+import java.awt.geom.Area;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
@@ -37,7 +42,7 @@ public class IconManager {
   private static final Font                FONT_AWESOME                = loadFontAwesome();
   private final static Map<URI, ImageIcon> ICON_CACHE                  = new HashMap<>();
   private final static int                 DEFAULT_FONT_SIZE           = Globals.settings.getFontSize();
-  private final static Color               ICON_COLOR                  = new Color(45, 121, 162);
+  private final static Color               ICON_COLOR                  = UIManager.getColor("Focus.color");
 
   public final static ImageIcon            EMPTY_IMAGE                 = new ImageIcon(IconManager.class.getResource("images/empty.png"));
 
@@ -65,8 +70,8 @@ public class IconManager {
   public final static ImageIcon            TOOLBAR_TOOLS_HOVER         = loadImage("icn_tools_hover.png");
 
   // packaged icons
-  public final static ImageIcon            DOT_AVAILABLE               = loadImage("dot_available.png");
-  public final static ImageIcon            DOT_UNAVAILABLE             = loadImage("dot_unavailable.png");
+  public final static ImageIcon            DOT_AVAILABLE               = createDotIcon(UIConstants.FOCUS_COLOR);
+  public final static ImageIcon            DOT_UNAVAILABLE             = createDotIcon(UIConstants.FOREGROUND_COLOR);
   public final static ImageIcon            STAR_FILLED                 = loadImage("star-filled.png");
   public final static ImageIcon            STAR_EMPTY                  = loadImage("star-empty.png");
   public final static ImageIcon            UNWATCHED                   = loadImage("unwatched.png");
@@ -121,6 +126,7 @@ public class IconManager {
   public final static ImageIcon            AUDIO                       = createFontAwesomeIcon('\uF028', 16);
   public final static ImageIcon            COUNT                       = createFontAwesomeIcon('\uF292', 16);
   public final static ImageIcon            DATE_ADDED                  = createFontAwesomeIcon('\uF271', 16);
+  public final static ImageIcon            EDIT_HEADER                 = createFontAwesomeIcon('\uF044', 16);
   public final static ImageIcon            EPISODES                    = createTextIcon("E", 18);
   public final static ImageIcon            FILE_SIZE                   = createFontAwesomeIcon('\uF0C7', 16);
   public final static ImageIcon            IMAGES                      = createFontAwesomeIcon('\uF302', 16);
@@ -199,6 +205,35 @@ public class IconManager {
     return icon;
   }
 
+  private static ImageIcon createDotIcon(Color color) {
+    int size = DEFAULT_FONT_SIZE / 2;
+
+    BufferedImage image = new BufferedImage(size, size + 2, BufferedImage.TYPE_INT_ARGB);
+    Graphics2D g2d = image.createGraphics();
+    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+    Area dot = new Area(new Ellipse2D.Float(0, 1f, (float) size, (float) size));
+    Area bottomShadow = new Area(new Ellipse2D.Float(0, 2f, (float) size, (float) size));
+    Area topShadow = new Area(new Ellipse2D.Float(0, 1f, (float) size, (float) size));
+    topShadow.subtract(bottomShadow);
+
+    Composite defaultComposite = g2d.getComposite();
+
+    g2d.setColor(UIConstants.BACKGROUND_COLOR);
+    g2d.fill(bottomShadow);
+
+    g2d.setComposite(defaultComposite);
+    g2d.setColor(color);
+    g2d.fill(dot);
+
+    g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.50f));
+    g2d.setColor(UIConstants.FOREGROUND_COLOR);
+    g2d.fill(topShadow);
+
+    g2d.dispose();
+    return new ImageIcon(image);
+  }
+
   /**
    * create a image off the font awesome icon font in the default size 14pt for 12pt base font size.
    *
@@ -212,7 +247,6 @@ public class IconManager {
 
   private static int calculateFontSize(float scaleFactor) {
     return (int) Math.floor(DEFAULT_FONT_SIZE * scaleFactor);
-    // return Math.round(DEFAULT_FONT_SIZE * scaleFactor);
   }
 
   /**

@@ -33,6 +33,9 @@ public class UIConstants {
   public static final Insets SMALL_BUTTON_MARGIN = new Insets(2, 2, 2, 2);
 
   public static final Color  LINK_COLOR          = getLinkColor();
+  public static final Color  FOCUS_COLOR         = UIManager.getColor("Focus.color");
+  public static final Color  FOREGROUND_COLOR    = UIManager.getColor("Label.foreground");
+  public static final Color  BACKGROUND_COLOR    = UIManager.getColor("Label.background");
 
   private static Color getLinkColor() {
     Color linkColor = UIManager.getColor("Link.Foreground");

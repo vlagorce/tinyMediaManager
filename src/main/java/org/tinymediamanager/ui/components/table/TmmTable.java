@@ -61,10 +61,10 @@ import org.tinymediamanager.ui.UTF8Control;
  * @author Manuel Laggner
  */
 public class TmmTable extends JTable {
-  private static final long             serialVersionUID  = 6150939811851709115L;
-  private static final ResourceBundle   BUNDLE            = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final long             serialVersionUID = 6150939811851709115L;
+  private static final ResourceBundle   BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
 
-  private static final CellRendererPane CELL_RENDER_PANE  = new CellRendererPane();
+  private static final CellRendererPane CELL_RENDER_PANE = new CellRendererPane();
 
   public TmmTable() {
     super();
@@ -88,10 +88,10 @@ public class TmmTable extends JTable {
 
   @Override
   public void addColumn(TableColumn aColumn) {
-    if (aColumn.getIdentifier() == null && getModel() instanceof TmmTableModel) {
-      // disable grid in header
-      aColumn.setHeaderRenderer(new BottomBorderHeaderRenderer());
+    // disable grid in header
+    aColumn.setHeaderRenderer(new BottomBorderHeaderRenderer());
 
+    if (aColumn.getIdentifier() == null && getModel() instanceof TmmTableModel) {
       TmmTableModel tableModel = ((TmmTableModel) getModel());
       tableModel.setUpColumn(aColumn);
     }
